@@ -97,4 +97,7 @@
   .shadow-soft {
     box-shadow: var(--shadow-soft);
   }
+  .safe-bottom {
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
 }
