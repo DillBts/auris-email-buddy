@@ -4,12 +4,27 @@ import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
+import { getRedirectResult } from "firebase/auth";
+import { auth } from "@/lib/firebase";
 
 const SignIn = () => {
   const { user, loading, signIn } = useAuth();
   const navigate = useNavigate();
   const [signingIn, setSigningIn] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    getRedirectResult(auth)
+      .then((result) => {
+        if (result?.user) {
+          navigate("/", { replace: true });
+        }
+      })
+      .catch((e) => {
+        console.error("Redirect result error:", e);
+        setError(e?.message ?? "Sign in failed");
+      });
+  }, [navigate]);
 
   useEffect(() => {
     if (user && !loading) navigate("/", { replace: true });
