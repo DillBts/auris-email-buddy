@@ -17,15 +17,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     // Handle redirect result when user comes back from Google
-    getRedirectResult(auth).then((result) => {
-      if (result?.user) setUser(result.user);
-    }).catch(() => {});
+    getRedirectResult(auth)
+      .then((result) => {
+        if (result?.user) {
+          setUser(result.user);
+          setLoading(false);
+        }
+      })
+      .catch((err) => {
+        console.error("Error getting redirect result:", err);
+      });
 
     const unsub = onAuthStateChanged(auth, (firebaseUser) => {
       setUser(firebaseUser);
       setLoading(false);
     });
-    return unsub;
+    return () => unsub();
   }, []);
 
   const handleSignIn = async () => {
