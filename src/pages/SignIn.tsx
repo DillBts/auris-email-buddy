@@ -5,13 +5,14 @@ import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { getRedirectResult } from "firebase/auth";
-import { auth } from "@/lib/firebase";
+import { auth } from "../../firebase";
 
 const SignIn = () => {
   const { user, loading, signIn } = useAuth();
   const navigate = useNavigate();
   const [signingIn, setSigningIn] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [checkingRedirect, setCheckingRedirect] = useState(true);
 
   useEffect(() => {
     getRedirectResult(auth)
@@ -21,14 +22,26 @@ const SignIn = () => {
         }
       })
       .catch((e) => {
-        console.error("Redirect result error:", e);
         setError(e?.message ?? "Sign in failed");
+      })
+      .finally(() => {
+        setCheckingRedirect(false);
       });
-  }, [navigate]);
+  }, []);
 
   useEffect(() => {
-    if (user && !loading) navigate("/", { replace: true });
-  }, [user, loading, navigate]);
+    if (user && !loading && !checkingRedirect) {
+      navigate("/", { replace: true });
+    }
+  }, [user, loading, checkingRedirect, navigate]);
+
+  if (loading || checkingRedirect) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   const handleSignIn = async () => {
     setError(null);
@@ -37,7 +50,6 @@ const SignIn = () => {
       await signIn();
     } catch (e: any) {
       setError(e?.message ?? "Sign in failed");
-    } finally {
       setSigningIn(false);
     }
   };
@@ -65,7 +77,7 @@ const SignIn = () => {
 
         <Button
           onClick={handleSignIn}
-          disabled={signingIn || loading}
+          disabled={signingIn}
           size="lg"
           className="w-full gradient-primary text-primary-foreground shadow-soft gap-2 h-12"
         >
