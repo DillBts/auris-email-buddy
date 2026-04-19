@@ -5,13 +5,14 @@ import { EmailDetail } from "@/components/EmailDetail";
 import { useStarred, useTrashEmail } from "@/lib/api/hooks";
 
 const Starred = () => {
-  const [emails, setEmails] = useState(mockEmails);
+  const { data } = useStarred();
+  const trashMutation = useTrashEmail();
   const [selectedId, setSelectedId] = useState<string | null>(null);
-  const starred = emails.filter((e) => e.starred && !e.trashed);
+  const starred = (data?.emails ?? []).filter((e) => !e.trashed);
   const selectedEmail = starred.find((e) => e.id === selectedId);
 
-  const handleTrash = (id: string) => {
-    setEmails((prev) => prev.map((e) => (e.id === id ? { ...e, trashed: true } : e)));
+  const handleTrash = async (id: string) => {
+    await trashMutation.mutateAsync(id);
     setSelectedId(null);
   };
 

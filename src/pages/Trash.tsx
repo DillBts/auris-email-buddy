@@ -1,17 +1,16 @@
-import { useState } from "react";
 import { motion } from "framer-motion";
 import { Trash2, RotateCcw, AlertTriangle } from "lucide-react";
 import { PriorityBadge } from "@/components/PriorityBadge";
 import { useTrash, useRestoreEmail, useDeletePermanently } from "@/lib/api/hooks";
 
 const Trash = () => {
-  const [trashedEmails, setTrashedEmails] = useState<Email[]>([
-    ...mockTrashedEmails,
-    ...mockEmails.filter((e) => e.trashed),
-  ]);
+  const { data } = useTrash();
+  const restoreMutation = useRestoreEmail();
+  const deleteMutation = useDeletePermanently();
+  const trashedEmails = data?.emails ?? [];
 
-  const handleRestore = (id: string) => setTrashedEmails((p) => p.filter((e) => e.id !== id));
-  const handleDelete = (id: string) => setTrashedEmails((p) => p.filter((e) => e.id !== id));
+  const handleRestore = (id: string) => restoreMutation.mutate(id);
+  const handleDelete = (id: string) => deleteMutation.mutate(id);
 
   return (
     <div className="flex flex-col h-full">
