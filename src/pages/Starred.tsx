@@ -1,18 +1,19 @@
 import { useState } from "react";
 import { Star } from "lucide-react";
-import { mockEmails } from "@/lib/mockData";
 import { EmailRow } from "@/components/EmailRow";
 import { EmailDetail } from "@/components/EmailDetail";
+import { useStarred, useTrashEmail } from "@/lib/api/hooks";
 
 const Starred = () => {
-  const [emails, setEmails] = useState(mockEmails);
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const { data } = useStarred();
+  const trashMutation = useTrashEmail();
+  const emails = data?.emails ?? [];
+  const starred = emails.filter((e) => !e.trashed);
+  const selectedEmail = starred.find((e) => e.id === selectedId);
 
-  const starred = emails.filter((e) => e.starred && !e.trashed);
-  const selectedEmail = emails.find((e) => e.id === selectedId);
-
-  const handleTrash = (id: string) => {
-    setEmails((prev) => prev.map((e) => (e.id === id ? { ...e, trashed: true } : e)));
+  const handleTrash = async (id: string) => {
+    await trashMutation.mutateAsync(id);
     setSelectedId(null);
   };
 
@@ -43,9 +44,7 @@ const Starred = () => {
         <div className="flex items-center gap-2">
           <Star className="w-5 h-5 text-priority-medium fill-priority-medium" />
           <h1 className="text-lg font-bold text-foreground">Starred</h1>
-          <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-primary/15 text-primary">
-            {starred.length}
-          </span>
+          <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-primary/15 text-primary">{starred.length}</span>
         </div>
       </div>
       <div className="flex-1 overflow-y-auto">
