@@ -1,21 +1,17 @@
+import { useState } from "react";
 import { motion } from "framer-motion";
-import { Trash2, RotateCcw, AlertTriangle, Loader2 } from "lucide-react";
+import { Trash2, RotateCcw, AlertTriangle } from "lucide-react";
 import { PriorityBadge } from "@/components/PriorityBadge";
-import { useTrash, useRestoreEmail, useDeletePermanently } from "@/lib/api/hooks";
+import { mockEmails, mockTrashedEmails, type Email } from "@/lib/mockData";
 
 const Trash = () => {
-  const { data, isLoading } = useTrash();
-  const restoreMutation = useRestoreEmail();
-  const deleteMutation = useDeletePermanently();
-  const trashedEmails = data?.emails ?? [];
+  const [trashedEmails, setTrashedEmails] = useState<Email[]>([
+    ...mockTrashedEmails,
+    ...mockEmails.filter((e) => e.trashed),
+  ]);
 
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center h-full">
-        <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
-      </div>
-    );
-  }
+  const handleRestore = (id: string) => setTrashedEmails((p) => p.filter((e) => e.id !== id));
+  const handleDelete = (id: string) => setTrashedEmails((p) => p.filter((e) => e.id !== id));
 
   return (
     <div className="flex flex-col h-full">
@@ -49,13 +45,11 @@ const Trash = () => {
                 <div className="mt-1.5"><PriorityBadge priority={email.priority} /></div>
               </div>
               <div className="flex items-center gap-1 shrink-0">
-                <button onClick={() => restoreMutation.mutate(email.id)} disabled={restoreMutation.isPending}
-                  className="p-2 rounded-lg hover:bg-primary/10 text-primary transition-colors" title="Restore">
-                  {restoreMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <RotateCcw className="w-4 h-4" />}
+                <button onClick={() => handleRestore(email.id)} className="p-2 rounded-lg hover:bg-primary/10 text-primary transition-colors" title="Restore">
+                  <RotateCcw className="w-4 h-4" />
                 </button>
-                <button onClick={() => deleteMutation.mutate(email.id)} disabled={deleteMutation.isPending}
-                  className="p-2 rounded-lg hover:bg-destructive/10 text-destructive transition-colors" title="Delete permanently">
-                  {deleteMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <AlertTriangle className="w-4 h-4" />}
+                <button onClick={() => handleDelete(email.id)} className="p-2 rounded-lg hover:bg-destructive/10 text-destructive transition-colors" title="Delete permanently">
+                  <AlertTriangle className="w-4 h-4" />
                 </button>
               </div>
             </motion.div>
