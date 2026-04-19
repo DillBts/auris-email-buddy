@@ -1,23 +1,31 @@
 import { useState } from "react";
-import { Search, Filter, Headphones, Loader2 } from "lucide-react";
+import { Search, Filter, Headphones, Loader2, Mail } from "lucide-react";
 import { EmailRow } from "@/components/EmailRow";
 import { EmailDetail } from "@/components/EmailDetail";
-import { useInbox, useTrashEmail } from "@/lib/api/hooks";
+import { useInbox, useTrashEmail, useAuthStatus } from "@/lib/api/hooks";
+import { useNavigate } from "react-router-dom";
 import type { Priority } from "@/lib/api/types";
 
 const Index = () => {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState<string>("all");
+  const navigate = useNavigate();
+
+  const { data: authStatus } = useAuthStatus();
+  const gmailConnected = authStatus?.gmailConnected ?? false;
 
   const priority = (["very-important", "important", "not-important"].includes(filter)
     ? filter : undefined) as Priority | undefined;
   const unread = filter === "unread" ? true : undefined;
 
-  const { data, isLoading, isError } = useInbox({ priority, unread });
+  const { data, isLoading, isError } = useInbox(
+    { priority, unread },
+    // Only fetch if Gmail is connected
+  );
   const trashMutation = useTrashEmail();
 
-  const emails = data?.emails ?? [];
+  const emails = (gmailConnected ? data?.emails : []) ?? [];
 
   const filteredEmails = emails.filter(
     (e) =>
@@ -104,13 +112,18 @@ const Index = () => {
       </div>
 
       <div className="flex-1 overflow-y-auto">
-        {isLoading ? (
+        {!gmailConnected ? (
+          <div className="flex flex-col items-center justify-center h-full text-muted-foreground gap-4">
+            <Mail className="w-12 h-12 opacity-20" />
+            <p className="text-sm font-medium">Connect Gmail to see your emails</p>
+            <button onClick={() => navigate("/settings")}
+              className="px-4 py-2 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:opacity-90 transition-opacity">
+              Go to Settings
+            </button>
+          </div>
+        ) : isLoading ? (
           <div className="flex items-center justify-center h-full text-muted-foreground">
             <Loader2 className="w-6 h-6 animate-spin" />
-          </div>
-        ) : isError ? (
-          <div className="flex flex-col items-center justify-center h-full text-muted-foreground">
-            <p className="text-sm">Failed to load emails. Please try again.</p>
           </div>
         ) : filteredEmails.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full text-muted-foreground">
