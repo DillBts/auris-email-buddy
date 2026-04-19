@@ -4,38 +4,20 @@ import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { getRedirectResult } from "firebase/auth";
-import { auth } from "../../firebase";
 
 const SignIn = () => {
   const { user, loading, signIn } = useAuth();
   const navigate = useNavigate();
   const [signingIn, setSigningIn] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [checkingRedirect, setCheckingRedirect] = useState(true);
 
   useEffect(() => {
-    getRedirectResult(auth)
-      .then((result) => {
-        if (result?.user) {
-          navigate("/", { replace: true });
-        }
-      })
-      .catch((e) => {
-        setError(e?.message ?? "Sign in failed");
-      })
-      .finally(() => {
-        setCheckingRedirect(false);
-      });
-  }, []);
-
-  useEffect(() => {
-    if (user && !loading && !checkingRedirect) {
+    if (user && !loading) {
       navigate("/", { replace: true });
     }
-  }, [user, loading, checkingRedirect, navigate]);
+  }, [user, loading, navigate]);
 
-  if (loading || checkingRedirect) {
+  if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <Loader2 className="w-8 h-8 animate-spin text-primary" />
