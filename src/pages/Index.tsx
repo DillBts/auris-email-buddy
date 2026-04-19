@@ -6,31 +6,30 @@ import { useInbox, useTrashEmail } from "@/lib/api/hooks";
 import type { Priority } from "@/lib/api/types";
 
 const Index = () => {
-  const [emails, setEmails] = useState<Email[]>(mockEmails);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState<string>("all");
 
-  const selectedEmail = emails.find((e) => e.id === selectedId);
+  const priority = (["very-important", "important", "not-important"].includes(filter)
+    ? filter : undefined) as Priority | undefined;
+  const unread = filter === "unread" ? true : undefined;
 
-  const filteredEmails = emails
-    .filter((e) => !e.trashed)
-    .filter((e) => {
-      if (filter === "very-important") return e.priority === ("veryimportant" as typeof e.priority);
-      if (filter === "important") return e.priority === "important";
-      if (filter === "not-important") return e.priority === ("notimportant" as typeof e.priority);
-      if (filter === "unread") return !e.read;
-      return true;
-    })
-    .filter(
-      (e) =>
-        search === "" ||
-        e.subject.toLowerCase().includes(search.toLowerCase()) ||
-        e.from.toLowerCase().includes(search.toLowerCase())
-    );
+  const { data, isLoading, isError } = useInbox({ priority, unread });
+  const trashMutation = useTrashEmail();
 
-  const handleTrash = (id: string) => {
-    setEmails((prev) => prev.map((e) => (e.id === id ? { ...e, trashed: true } : e)));
+  const emails = data?.emails ?? [];
+
+  const filteredEmails = emails.filter(
+    (e) =>
+      search === "" ||
+      e.subject.toLowerCase().includes(search.toLowerCase()) ||
+      e.from.toLowerCase().includes(search.toLowerCase())
+  );
+
+  const selectedEmail = filteredEmails.find((e) => e.id === selectedId);
+
+  const handleTrash = async (id: string) => {
+    await trashMutation.mutateAsync(id);
     setSelectedId(null);
   };
 
@@ -47,13 +46,11 @@ const Index = () => {
       <div className="flex h-full">
         <div className="hidden md:flex flex-col w-[400px] border-r border-border/50">
           <div className="px-5 py-4 border-b border-border/50">
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-2">
-                <h1 className="text-lg font-bold text-foreground">Inbox</h1>
-                <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-primary/15 text-primary">
-                  {filteredEmails.filter((e) => !e.read).length} new
-                </span>
-              </div>
+            <div className="flex items-center gap-2">
+              <h1 className="text-lg font-bold text-foreground">Inbox</h1>
+              <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-primary/15 text-primary">
+                {filteredEmails.filter((e) => !e.read).length} new
+              </span>
             </div>
           </div>
           <div className="flex-1 overflow-y-auto">
@@ -96,15 +93,10 @@ const Index = () => {
         <div className="flex items-center gap-1.5 overflow-x-auto pb-1 -mx-1 px-1">
           <Filter className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
           {filterOptions.map((opt) => (
-            <button
-              key={opt.value}
-              onClick={() => setFilter(opt.value)}
+            <button key={opt.value} onClick={() => setFilter(opt.value)}
               className={`px-3 py-1 rounded-full text-xs font-medium transition-all whitespace-nowrap ${
-                filter === opt.value
-                  ? "bg-primary text-primary-foreground shadow-soft"
-                  : "bg-muted/50 text-muted-foreground hover:bg-muted"
-              }`}
-            >
+                filter === opt.value ? "bg-primary text-primary-foreground shadow-soft" : "bg-muted/50 text-muted-foreground hover:bg-muted"
+              }`}>
               {opt.label}
             </button>
           ))}
@@ -112,7 +104,15 @@ const Index = () => {
       </div>
 
       <div className="flex-1 overflow-y-auto">
-        {filteredEmails.length === 0 ? (
+        {isLoading ? (
+          <div className="flex items-center justify-center h-full text-muted-foreground">
+            <Loader2 className="w-6 h-6 animate-spin" />
+          </div>
+        ) : isError ? (
+          <div className="flex flex-col items-center justify-center h-full text-muted-foreground">
+            <p className="text-sm">Failed to load emails. Please try again.</p>
+          </div>
+        ) : filteredEmails.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full text-muted-foreground">
             <Search className="w-10 h-10 mb-3 opacity-30" />
             <p className="text-sm">No emails found</p>
