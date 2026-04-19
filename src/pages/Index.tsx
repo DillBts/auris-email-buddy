@@ -1,8 +1,9 @@
 import { useState } from "react";
-import { Search, Filter, Headphones } from "lucide-react";
+import { Search, Filter, Headphones, Loader2 } from "lucide-react";
 import { EmailRow } from "@/components/EmailRow";
 import { EmailDetail } from "@/components/EmailDetail";
-import { mockEmails, type Email } from "@/lib/mockData";
+import { useInbox, useTrashEmail } from "@/lib/api/hooks";
+import type { Priority } from "@/lib/api/types";
 
 const Index = () => {
   const [emails, setEmails] = useState<Email[]>(mockEmails);

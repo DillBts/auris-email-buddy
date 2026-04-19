@@ -2,7 +2,7 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { Trash2, RotateCcw, AlertTriangle } from "lucide-react";
 import { PriorityBadge } from "@/components/PriorityBadge";
-import { mockEmails, mockTrashedEmails, type Email } from "@/lib/mockData";
+import { useTrash, useRestoreEmail, useDeletePermanently } from "@/lib/api/hooks";
 
 const Trash = () => {
   const [trashedEmails, setTrashedEmails] = useState<Email[]>([

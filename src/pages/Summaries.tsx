@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { BarChart3, Calendar, TrendingUp, Headphones, AlertCircle, CheckCircle } from "lucide-react";
-import { mockDailySummaries, mockWeeklySummary } from "@/lib/mockData";
+import { useDailySummaries, useWeeklySummary, useGenerateSummaryAudio, useUserPrefs } from "@/lib/api/hooks";
 
 const Summaries = () => {
   const [tab, setTab] = useState<"daily" | "weekly">("daily");

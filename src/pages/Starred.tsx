@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Star } from "lucide-react";
 import { EmailRow } from "@/components/EmailRow";
 import { EmailDetail } from "@/components/EmailDetail";
-import { mockEmails } from "@/lib/mockData";
+import { useStarred, useTrashEmail } from "@/lib/api/hooks";
 
 const Starred = () => {
   const [emails, setEmails] = useState(mockEmails);
