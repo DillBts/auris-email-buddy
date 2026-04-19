@@ -1,7 +1,6 @@
 import { initializeApp } from "firebase/app";
 import { getAuth, GoogleAuthProvider } from "firebase/auth";
 
-// These are public/safe to expose in frontend code
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
   authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
@@ -12,10 +11,13 @@ const firebaseConfig = {
 };
 
 const app = initializeApp(firebaseConfig);
-
 export const auth = getAuth(app);
+
 export const googleProvider = new GoogleAuthProvider();
 googleProvider.addScope("email");
 googleProvider.addScope("profile");
+googleProvider.addScope("https://www.googleapis.com/auth/gmail.readonly");
+googleProvider.addScope("https://www.googleapis.com/auth/gmail.modify");
+googleProvider.setCustomParameters({ access_type: "offline", prompt: "consent" });
 
 export default app;
