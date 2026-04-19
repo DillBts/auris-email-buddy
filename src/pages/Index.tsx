@@ -15,9 +15,9 @@ const Index = () => {
   const filteredEmails = emails
     .filter((e) => !e.trashed)
     .filter((e) => {
-      if (filter === "very-important") return e.priority === "veryimportant";
+      if (filter === "very-important") return e.priority === ("veryimportant" as typeof e.priority);
       if (filter === "important") return e.priority === "important";
-      if (filter === "not-important") return e.priority === "notimportant";
+      if (filter === "not-important") return e.priority === ("notimportant" as typeof e.priority);
       if (filter === "unread") return !e.read;
       return true;
     })
