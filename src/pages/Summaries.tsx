@@ -5,6 +5,19 @@ import { useDailySummaries, useWeeklySummary, useGenerateSummaryAudio, useUserPr
 
 const Summaries = () => {
   const [tab, setTab] = useState<"daily" | "weekly">("daily");
+  const { data: dailyData } = useDailySummaries(7);
+  const { data: weeklyData } = useWeeklySummary();
+  const mockDailySummaries = dailyData?.summaries ?? [];
+  const mockWeeklySummary = weeklyData?.summary ?? {
+    week: "",
+    totalEmails: 0,
+    veryImportant: 0,
+    important: 0,
+    notImportant: 0,
+    summary: "",
+    actionItems: [] as string[],
+    topSenders: [] as { name: string; count: number }[],
+  };
 
   return (
     <div className="flex flex-col h-full">
