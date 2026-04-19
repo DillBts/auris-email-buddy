@@ -1,7 +1,9 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Search, Filter, Headphones } from "lucide-react";
-import { mockEmails, type Email } from "@/lib/mockData";
+import { Search, Filter, Headphones, Loader2 } from "lucide-react";
+import { useInbox, useTrashEmail } from "@/lib/api/hooks";
+import type { Priority } from "@/lib/api/types";
+import { Loader2 } from "lucide-react";
 import { EmailRow } from "@/components/EmailRow";
 import { EmailDetail } from "@/components/EmailDetail";
 
