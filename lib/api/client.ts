@@ -1,16 +1,27 @@
-import { auth } from "../firebase";
+import { auth } from "../../firebase";
 
 const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
-// ── Get Firebase ID token for the current user ─────────────
 async function getAuthHeader(): Promise<Record<string, string>> {
   const user = auth.currentUser;
   if (!user) throw new Error("Not authenticated");
-  const token = await user.getIdToken();
-  return { Authorization: `Bearer ${token}` };
+
+  const idToken = await user.getIdToken();
+  
+  // Get Google access token for Gmail API calls
+  const googleToken = await user.getIdTokenResult()
+    .then(() => {
+      // Access token is stored in the user's credential
+      return (user as any).stsTokenManager?.accessToken || "";
+    })
+    .catch(() => "");
+
+  return {
+    Authorization: `Bearer ${idToken}`,
+    "X-Google-Access-Token": googleToken,
+  };
 }
 
-// ── Core fetch wrapper ─────────────────────────────────────
 async function request<T>(
   method: string,
   path: string,
@@ -32,7 +43,6 @@ async function request<T>(
     throw new Error(err.error || `Request failed: ${res.status}`);
   }
 
-  // 204 No Content
   if (res.status === 204) return undefined as T;
 
   return res.json();
