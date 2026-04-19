@@ -1,11 +1,8 @@
 import { useState } from "react";
-import { motion } from "framer-motion";
-import { Search, Filter, Headphones, Loader2 } from "lucide-react";
-import { useInbox, useTrashEmail } from "@/lib/api/hooks";
-import type { Priority } from "@/lib/api/types";
-import { Loader2 } from "lucide-react";
+import { Search, Filter, Headphones } from "lucide-react";
 import { EmailRow } from "@/components/EmailRow";
 import { EmailDetail } from "@/components/EmailDetail";
+import { mockEmails, type Email } from "@/lib/mockData";
 
 const Index = () => {
   const [emails, setEmails] = useState<Email[]>(mockEmails);
@@ -18,9 +15,9 @@ const Index = () => {
   const filteredEmails = emails
     .filter((e) => !e.trashed)
     .filter((e) => {
-      if (filter === "very-important") return e.priority === "very-important";
+      if (filter === "very-important") return e.priority === "veryimportant";
       if (filter === "important") return e.priority === "important";
-      if (filter === "not-important") return e.priority === "not-important";
+      if (filter === "not-important") return e.priority === "notimportant";
       if (filter === "unread") return !e.read;
       return true;
     })
@@ -44,11 +41,9 @@ const Index = () => {
     { value: "unread", label: "Unread" },
   ];
 
-  // On mobile, show detail full-screen when selected
   if (selectedEmail) {
     return (
       <div className="flex h-full">
-        {/* Hide list on mobile when detail is open */}
         <div className="hidden md:flex flex-col w-[400px] border-r border-border/50">
           <div className="px-5 py-4 border-b border-border/50">
             <div className="flex items-center justify-between mb-4">
@@ -62,13 +57,7 @@ const Index = () => {
           </div>
           <div className="flex-1 overflow-y-auto">
             {filteredEmails.map((email, i) => (
-              <EmailRow
-                key={email.id}
-                email={email}
-                selected={email.id === selectedId}
-                onSelect={setSelectedId}
-                index={i}
-              />
+              <EmailRow key={email.id} email={email} selected={email.id === selectedId} onSelect={setSelectedId} index={i} />
             ))}
           </div>
         </div>
@@ -79,7 +68,6 @@ const Index = () => {
 
   return (
     <div className="flex flex-col h-full">
-      {/* Top bar */}
       <div className="px-4 md:px-5 py-3 md:py-4 border-b border-border/50">
         <div className="flex items-center justify-between mb-3 md:mb-4">
           <div className="flex items-center gap-2">
@@ -93,7 +81,6 @@ const Index = () => {
           </button>
         </div>
 
-        {/* Search */}
         <div className="relative mb-3">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <input
@@ -105,7 +92,6 @@ const Index = () => {
           />
         </div>
 
-        {/* Filters */}
         <div className="flex items-center gap-1.5 overflow-x-auto pb-1 -mx-1 px-1">
           <Filter className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
           {filterOptions.map((opt) => (
@@ -124,7 +110,6 @@ const Index = () => {
         </div>
       </div>
 
-      {/* Email list */}
       <div className="flex-1 overflow-y-auto">
         {filteredEmails.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full text-muted-foreground">
@@ -133,13 +118,7 @@ const Index = () => {
           </div>
         ) : (
           filteredEmails.map((email, i) => (
-            <EmailRow
-              key={email.id}
-              email={email}
-              selected={email.id === selectedId}
-              onSelect={setSelectedId}
-              index={i}
-            />
+            <EmailRow key={email.id} email={email} selected={email.id === selectedId} onSelect={setSelectedId} index={i} />
           ))
         )}
       </div>

@@ -2,18 +2,16 @@ import { useState } from "react";
 import { Star } from "lucide-react";
 import { EmailRow } from "@/components/EmailRow";
 import { EmailDetail } from "@/components/EmailDetail";
-import { useStarred, useTrashEmail } from "@/lib/api/hooks";
+import { mockEmails } from "@/lib/mockData";
 
 const Starred = () => {
+  const [emails, setEmails] = useState(mockEmails);
   const [selectedId, setSelectedId] = useState<string | null>(null);
-  const { data } = useStarred();
-  const trashMutation = useTrashEmail();
-  const emails = data?.emails ?? [];
-  const starred = emails.filter((e) => !e.trashed);
+  const starred = emails.filter((e) => e.starred && !e.trashed);
   const selectedEmail = starred.find((e) => e.id === selectedId);
 
-  const handleTrash = async (id: string) => {
-    await trashMutation.mutateAsync(id);
+  const handleTrash = (id: string) => {
+    setEmails((prev) => prev.map((e) => (e.id === id ? { ...e, trashed: true } : e)));
     setSelectedId(null);
   };
 
