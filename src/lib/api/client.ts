@@ -5,7 +5,7 @@ const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 async function getAuthHeader(): Promise<Record<string, string>> {
   const user = auth.currentUser;
   if (!user) throw new Error("Not authenticated");
-  const token = await user.getIdToken();
+  const token = await user.getIdToken(true);
   return { Authorization: `Bearer ${token}` };
 }
 
