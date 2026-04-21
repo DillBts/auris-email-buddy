@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from "react";
-import { User, onAuthStateChanged, signInWithPopup, signOut } from "firebase/auth";
+import { User, onAuthStateChanged, signInWithPopup, signOut, GoogleAuthProvider } from "firebase/auth";
 import { auth, googleProvider } from "@/lib/firebase";
 
 interface AuthContextValue {
@@ -16,35 +16,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const unsub = onAuthStateChanged(auth, async (firebaseUser) => {
-  setUser(firebaseUser);
-  setLoading(false);
-  
-  // Sync Google access token to backend so Gmail API works
-  if (firebaseUser) {
-    try {
-      const googleToken = (firebaseUser as any).stsTokenManager?.accessToken || "";
-      if (googleToken) {
-        const idToken = await firebaseUser.getIdToken();
-        await fetch(`${import.meta.env.VITE_API_URL}/auth/sync-google`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${idToken}`,
-          },
-          body: JSON.stringify({ googleAccessToken: googleToken }),
-        });
-      }
-    } catch (e) {
-      console.error("Failed to sync Google token:", e);
-    }
-  }
-});
-    return () => unsub();
+    const unsub = onAuthStateChanged(auth, (firebaseUser) => {
+      setUser(firebaseUser);
+      setLoading(false);
+    });
+    return unsub;
   }, []);
 
   const handleSignIn = async () => {
-    await signInWithPopup(auth, googleProvider);
+    const result = await signInWithPopup(auth, googleProvider);
+    const credential = GoogleAuthProvider.credentialFromResult(result);
+    if (credential?.accessToken) {
+      localStorage.setItem("google_access_token", credential.accessToken);
+    }
   };
 
   const handleSignOut = async () => {

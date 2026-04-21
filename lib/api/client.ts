@@ -5,21 +5,11 @@ const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 async function getAuthHeader(): Promise<Record<string, string>> {
   const user = auth.currentUser;
   if (!user) throw new Error("Not authenticated");
-
-  const idToken = await user.getIdToken();
-  
-  // Get Google access token for Gmail API calls
-  const googleToken = await user.getIdTokenResult()
-    .then(() => {
-      // Access token is stored in the user's credential
-      return (user as any).stsTokenManager?.accessToken || "";
-    })
-    .catch(() => "");
-
-  return {
-    Authorization: `Bearer ${idToken}`,
-    "X-Google-Access-Token": googleToken,
-  };
+  const token = await user.getIdToken();
+  const headers: Record<string, string> = { Authorization: `Bearer ${token}` };
+  const googleToken = localStorage.getItem("google_access_token");
+  if (googleToken) headers["x-google-access-token"] = googleToken;
+  return headers;
 }
 
 async function request<T>(
