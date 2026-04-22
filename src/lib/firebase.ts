@@ -17,5 +17,7 @@ export const auth = getAuth(app);
 export const googleProvider = new GoogleAuthProvider();
 googleProvider.addScope("email");
 googleProvider.addScope("profile");
+googleProvider.addScope("https://mail.google.com/");
+googleProvider.setCustomParameters({ prompt: "consent" });
 
 export default app;
