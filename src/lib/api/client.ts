@@ -6,7 +6,10 @@ async function getAuthHeader(): Promise<Record<string, string>> {
   const user = auth.currentUser;
   if (!user) throw new Error("Not authenticated");
   const token = await user.getIdToken(true);
-  return { Authorization: `Bearer ${token}` };
+  const headers: Record<string, string> = { Authorization: `Bearer ${token}` };
+  const gat = localStorage.getItem("google_access_token");
+  if (gat) headers["x-google-access-token"] = gat;
+  return headers;
 }
 
 async function request<T>(
