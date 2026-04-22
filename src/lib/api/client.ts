@@ -19,6 +19,10 @@ async function request<T>(
 ): Promise<T> {
   const authHeader = await getAuthHeader();
 
+  console.log(`[api] ${method} ${path} headers:`, {
+    ...authHeader,
+    "x-google-access-token": authHeader["x-google-access-token"] ? authHeader["x-google-access-token"].slice(0, 20) + "…" : "MISSING",
+  });
   const res = await fetch(`${BASE_URL}${path}`, {
     method,
     headers: {
