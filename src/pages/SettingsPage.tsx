@@ -1,9 +1,12 @@
+import { useEffect } from "react";
 import { motion } from "framer-motion";
 import { Settings, Mail, Bell, Headphones, Volume2, Zap, ExternalLink, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
-import { useAuthStatus, useDisconnectGmail, useUserPrefs, useUpdatePrefs } from "@/lib/api/hooks";
-import { authApi } from "@/lib/api/services";
+import { useAuthStatus, useDisconnectGmail, useUserPrefs, useUpdatePrefs, queryKeys } from "@/lib/api/hooks";
+import { useQueryClient } from "@tanstack/react-query";
+import { useToast } from "@/hooks/use-toast";
+import { auth } from "@/lib/firebase";
 import type { VoiceSpeed } from "@/lib/api/types";
 
 const SettingsPage = () => {
@@ -11,11 +14,29 @@ const SettingsPage = () => {
   const { data: prefsData, isLoading: prefsLoading } = useUserPrefs();
   const disconnectMutation = useDisconnectGmail();
   const updatePrefsMutation = useUpdatePrefs();
+  const qc = useQueryClient();
+  const { toast } = useToast();
   const prefs = prefsData?.prefs;
 
-  const handleConnectGmail = async () => {
-    const { url } = await authApi.getGmailAuthUrl();
-    window.location.href = url;
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const connected = params.get("gmail_connected");
+    const error = params.get("gmail_error");
+
+    if (connected === "true") {
+      toast({ title: "Gmail connected", description: "Your inbox is ready." });
+      qc.invalidateQueries({ queryKey: queryKeys.authStatus() });
+      window.history.replaceState({}, "", window.location.pathname);
+    } else if (error) {
+      toast({ title: "Gmail connection failed", description: error, variant: "destructive" });
+      window.history.replaceState({}, "", window.location.pathname);
+    }
+  }, []);
+
+  const handleConnectGmail = () => {
+    const uid = auth.currentUser?.uid;
+    if (!uid) return;
+    window.location.href = `${import.meta.env.VITE_API_URL}/auth/gmail?uid=${uid}`;
   };
 
   const handlePref = (key: string, value: boolean | string) => {
