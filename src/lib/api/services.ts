@@ -13,7 +13,7 @@ import type {
 
 export const authApi = {
   getStatus: () =>
-    api.get<{ gmailConnected: boolean; email: string | null }>("/auth/status"),
+    api.get<{ gmailConnected: boolean; hasRefreshToken: boolean; email: string | null }>("/auth/status"),
   disconnectGmail: () => api.delete<{ success: boolean }>("/auth/gmail"),
   registerFcmToken: (token: string) =>
     api.post<{ success: boolean }>("/auth/fcm-token", { token }),

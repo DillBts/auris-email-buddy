@@ -1,7 +1,9 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from "react";
 import { User, onAuthStateChanged, signInWithPopup, signOut, GoogleAuthProvider } from "firebase/auth";
+import { useQueryClient } from "@tanstack/react-query";
 import { auth, googleProvider } from "@/lib/firebase";
 import { api } from "@/lib/api/client";
+import { queryKeys } from "@/lib/api/hooks";
 
 interface AuthContextValue {
   user: User | null;
@@ -15,6 +17,7 @@ const AuthContext = createContext<AuthContextValue | null>(null);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const qc = useQueryClient();
 
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, (firebaseUser) => {
@@ -30,6 +33,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (credential?.accessToken) {
       localStorage.setItem("google_access_token", credential.accessToken);
       await api.post("/auth/sync-google", { googleAccessToken: credential.accessToken });
+      const status = await api.get<{ gmailConnected: boolean; hasRefreshToken: boolean }>("/auth/status");
+      if (!status.hasRefreshToken) {
+        const uid = result.user.uid;
+        window.location.href = `${import.meta.env.VITE_API_URL}/auth/gmail?uid=${uid}`;
+        return;
+      }
+      qc.invalidateQueries({ queryKey: queryKeys.authStatus() });
     }
   };
 
