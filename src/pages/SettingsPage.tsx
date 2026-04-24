@@ -129,11 +129,10 @@ const SettingsPage = () => {
                   disabled={updatePrefsMutation.isPending}
                   className="w-full rounded-xl border border-border bg-muted px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary disabled:opacity-50"
                 >
-                  <option value="en-US-Neural2-A">Neural2-A (Female)</option>
-                  <option value="en-US-Neural2-C">Neural2-C (Female)</option>
-                  <option value="en-US-Neural2-D">Neural2-D (Male)</option>
-                  <option value="en-US-Neural2-F">Neural2-F (Female)</option>
-                  <option value="en-US-Neural2-J">Neural2-J (Male)</option>
+                  <option value="en-US-Neural2-A">Marianne (Female)</option>
+                  <option value="en-US-Neural2-B">James (Male)</option>
+                  <option value="en-US-Neural2-C">Sophie (Female)</option>
+                  <option value="en-US-Neural2-D">Default</option>
                 </select>
               </div>
             </div>

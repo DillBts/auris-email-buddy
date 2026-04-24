@@ -42,10 +42,9 @@ export interface WeeklySummary {
 
 export type VoiceType =
   | "en-US-Neural2-A"
-  | "en-US-Neural2-D"
-  | "en-US-Neural2-F"
-  | "en-US-Neural2-J"
-  | "en-US-Neural2-C";
+  | "en-US-Neural2-B"
+  | "en-US-Neural2-C"
+  | "en-US-Neural2-D";
 
 export interface UserPrefs {
   notifications: boolean;
