@@ -63,7 +63,7 @@ const Index = () => {
           </div>
           <div className="flex-1 overflow-y-auto">
             {filteredEmails.map((email, i) => (
-              <EmailRow key={email.id} email={email} selected={email.id === selectedId} onSelect={setSelectedId} index={i} />
+              <EmailRow key={email.id} email={email} selected={email.id === selectedId} onSelect={setSelectedId} onListen={(id) => navigate(`/listen?emailId=${id}`)} index={i} />
             ))}
           </div>
         </div>
@@ -132,7 +132,7 @@ const Index = () => {
           </div>
         ) : (
           filteredEmails.map((email, i) => (
-            <EmailRow key={email.id} email={email} selected={email.id === selectedId} onSelect={setSelectedId} index={i} />
+            <EmailRow key={email.id} email={email} selected={email.id === selectedId} onSelect={setSelectedId} onListen={(id) => navigate(`/listen?emailId=${id}`)} index={i} />
           ))
         )}
       </div>

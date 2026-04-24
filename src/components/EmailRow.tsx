@@ -7,10 +7,11 @@ interface EmailRowProps {
   email: Email;
   selected: boolean;
   onSelect: (id: string) => void;
+  onListen?: (id: string) => void;
   index: number;
 }
 
-export function EmailRow({ email, selected, onSelect, index }: EmailRowProps) {
+export function EmailRow({ email, selected, onSelect, onListen, index }: EmailRowProps) {
   return (
     <motion.button
       initial={{ opacity: 0, y: 6 }}
@@ -50,6 +51,7 @@ export function EmailRow({ email, selected, onSelect, index }: EmailRowProps) {
       <button
         onClick={(e) => {
           e.stopPropagation();
+          onListen?.(email.id);
         }}
         className="opacity-0 group-hover:opacity-100 transition-opacity p-2 rounded-full hover:bg-primary/10 text-primary shrink-0 mt-1"
         title="Listen to email"

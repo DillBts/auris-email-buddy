@@ -5,6 +5,7 @@ import { PriorityBadge } from "@/components/PriorityBadge";
 import { Button } from "@/components/ui/button";
 import { useInbox, useGenerateAudio, useAudioUrls, useUserPrefs } from "@/lib/api/hooks";
 import { useToast } from "@/hooks/use-toast";
+import { useSearchParams } from "react-router-dom";
 import type { VoiceSpeed } from "@/lib/api/types";
 
 const Listen = () => {
@@ -14,7 +15,11 @@ const Listen = () => {
   const [audioReady, setAudioReady] = useState(false);
   const audioRef = useRef<HTMLAudioElement>(null);
   const autoPlayRef = useRef(false);
+  const didAutoStart = useRef(false);
   const { toast } = useToast();
+
+  const [searchParams] = useSearchParams();
+  const deepLinkId = searchParams.get("emailId");
 
   const { data: inboxData, isLoading: inboxLoading } = useInbox();
   const { data: prefsData } = useUserPrefs();
@@ -24,6 +29,30 @@ const Listen = () => {
 
   const generateMutation = useGenerateAudio();
   const { data: audioUrls } = useAudioUrls(current?.id ?? "", speed, audioReady);
+
+  // Jump to deep-linked email once inbox loads
+  useEffect(() => {
+    if (!deepLinkId || emails.length === 0) return;
+    const idx = emails.findIndex((e) => e.id === deepLinkId);
+    if (idx !== -1) setCurrentIndex(idx);
+  }, [deepLinkId, emails.length]);
+
+  // Auto-start generation+play once currentIndex points at the deep-linked email
+  useEffect(() => {
+    if (!deepLinkId || didAutoStart.current || !current || current.id !== deepLinkId) return;
+    didAutoStart.current = true;
+    autoPlayRef.current = true;
+    generateMutation.mutate(
+      { emailId: current.id, speed },
+      {
+        onSuccess: () => setAudioReady(true),
+        onError: () => {
+          autoPlayRef.current = false;
+          toast({ title: "Failed to generate audio", description: "Please try again.", variant: "destructive" });
+        },
+      }
+    );
+  }, [current?.id, deepLinkId]);
 
   // Auto-play when signed URL first arrives after generate
   useEffect(() => {
