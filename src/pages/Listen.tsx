@@ -20,6 +20,7 @@ const Listen = () => {
 
   const [searchParams] = useSearchParams();
   const deepLinkId = searchParams.get("emailId");
+  const deepLinkMode = searchParams.get("mode") as "full" | "summary" | null;
 
   const { data: inboxData, isLoading: inboxLoading } = useInbox();
   const { data: prefsData } = useUserPrefs();
@@ -30,11 +31,12 @@ const Listen = () => {
   const generateMutation = useGenerateAudio();
   const { data: audioUrls } = useAudioUrls(current?.id ?? "", speed, audioReady);
 
-  // Jump to deep-linked email once inbox loads
+  // Jump to deep-linked email and set mode once inbox loads
   useEffect(() => {
     if (!deepLinkId || emails.length === 0) return;
     const idx = emails.findIndex((e) => e.id === deepLinkId);
     if (idx !== -1) setCurrentIndex(idx);
+    if (deepLinkMode) setMode(deepLinkMode);
   }, [deepLinkId, emails.length]);
 
   // Auto-start generation+play once currentIndex points at the deep-linked email

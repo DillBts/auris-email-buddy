@@ -8,9 +8,13 @@ interface EmailDetailProps {
   email: Email;
   onBack: () => void;
   onTrash: (id: string) => void;
+  onListen: (id: string, mode: "full" | "summary") => void;
+  onStar: (id: string, starred: boolean) => void;
+  starPending?: boolean;
+  trashPending?: boolean;
 }
 
-export function EmailDetail({ email, onBack, onTrash }: EmailDetailProps) {
+export function EmailDetail({ email, onBack, onTrash, onListen, onStar, starPending, trashPending }: EmailDetailProps) {
   return (
     <motion.div
       initial={{ opacity: 0, x: 20 }}
@@ -25,15 +29,19 @@ export function EmailDetail({ email, onBack, onTrash }: EmailDetailProps) {
           Back
         </button>
         <div className="flex items-center gap-1.5 md:gap-2">
-          <Button variant="outline" size="sm" className="gap-1.5 md:gap-2 text-primary border-primary/30 hover:bg-primary/10 px-2 md:px-3">
+          <Button variant="outline" size="sm" className="gap-1.5 md:gap-2 text-primary border-primary/30 hover:bg-primary/10 px-2 md:px-3"
+            onClick={() => onListen(email.id, "full")}>
             <Volume2 className="w-4 h-4" />
             <span className="hidden sm:inline">Listen</span>
           </Button>
-          <Button variant="outline" size="sm" className="gap-1.5 md:gap-2 text-primary border-primary/30 hover:bg-primary/10 px-2 md:px-3">
+          <Button variant="outline" size="sm" className="gap-1.5 md:gap-2 text-primary border-primary/30 hover:bg-primary/10 px-2 md:px-3"
+            onClick={() => onListen(email.id, "summary")}>
             <Headphones className="w-4 h-4" />
             <span className="hidden sm:inline">Summary</span>
           </Button>
-          <Button variant="outline" size="sm" className="px-2 md:gap-2">
+          <Button variant="outline" size="sm" className="px-2 md:gap-2"
+            onClick={() => onStar(email.id, !email.starred)}
+            disabled={starPending}>
             <Star className={`w-4 h-4 ${email.starred ? "fill-priority-medium text-priority-medium" : ""}`} />
           </Button>
           <Button
@@ -41,6 +49,7 @@ export function EmailDetail({ email, onBack, onTrash }: EmailDetailProps) {
             size="sm"
             className="px-2 md:gap-2 text-destructive border-destructive/30 hover:bg-destructive/10"
             onClick={() => onTrash(email.id)}
+            disabled={trashPending}
           >
             <Trash2 className="w-4 h-4" />
           </Button>

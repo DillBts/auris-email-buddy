@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Search, Filter, Headphones, Loader2, Mail } from "lucide-react";
 import { EmailRow } from "@/components/EmailRow";
 import { EmailDetail } from "@/components/EmailDetail";
-import { useInbox, useTrashEmail, useAuthStatus } from "@/lib/api/hooks";
+import { useInbox, useTrashEmail, useStarEmail, useAuthStatus } from "@/lib/api/hooks";
 import { useNavigate } from "react-router-dom";
 import type { Priority } from "@/lib/api/types";
 
@@ -24,6 +24,7 @@ const Index = () => {
     // Only fetch if Gmail is connected
   );
   const trashMutation = useTrashEmail();
+  const starMutation = useStarEmail();
 
   const emails = (gmailConnected ? data?.emails : []) ?? [];
 
@@ -67,7 +68,15 @@ const Index = () => {
             ))}
           </div>
         </div>
-        <EmailDetail email={selectedEmail} onBack={() => setSelectedId(null)} onTrash={handleTrash} />
+        <EmailDetail
+          email={selectedEmail}
+          onBack={() => setSelectedId(null)}
+          onTrash={handleTrash}
+          onListen={(id, mode) => navigate(`/listen?emailId=${id}&mode=${mode}`)}
+          onStar={(id, starred) => starMutation.mutate({ id, starred })}
+          starPending={starMutation.isPending}
+          trashPending={trashMutation.isPending}
+        />
       </div>
     );
   }

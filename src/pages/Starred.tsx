@@ -2,11 +2,14 @@ import { useState } from "react";
 import { Star } from "lucide-react";
 import { EmailRow } from "@/components/EmailRow";
 import { EmailDetail } from "@/components/EmailDetail";
-import { useStarred, useTrashEmail } from "@/lib/api/hooks";
+import { useStarred, useTrashEmail, useStarEmail } from "@/lib/api/hooks";
+import { useNavigate } from "react-router-dom";
 
 const Starred = () => {
   const { data } = useStarred();
   const trashMutation = useTrashEmail();
+  const starMutation = useStarEmail();
+  const navigate = useNavigate();
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const starred = (data?.emails ?? []).filter((e) => !e.trashed);
   const selectedEmail = starred.find((e) => e.id === selectedId);
@@ -28,11 +31,19 @@ const Starred = () => {
           </div>
           <div className="flex-1 overflow-y-auto">
             {starred.map((email, i) => (
-              <EmailRow key={email.id} email={email} selected={email.id === selectedId} onSelect={setSelectedId} index={i} />
+              <EmailRow key={email.id} email={email} selected={email.id === selectedId} onSelect={setSelectedId} onListen={(id) => navigate(`/listen?emailId=${id}`)} index={i} />
             ))}
           </div>
         </div>
-        <EmailDetail email={selectedEmail} onBack={() => setSelectedId(null)} onTrash={handleTrash} />
+        <EmailDetail
+          email={selectedEmail}
+          onBack={() => setSelectedId(null)}
+          onTrash={handleTrash}
+          onListen={(id, mode) => navigate(`/listen?emailId=${id}&mode=${mode}`)}
+          onStar={(id, starred) => starMutation.mutate({ id, starred })}
+          starPending={starMutation.isPending}
+          trashPending={trashMutation.isPending}
+        />
       </div>
     );
   }
@@ -54,7 +65,7 @@ const Starred = () => {
           </div>
         ) : (
           starred.map((email, i) => (
-            <EmailRow key={email.id} email={email} selected={email.id === selectedId} onSelect={setSelectedId} index={i} />
+            <EmailRow key={email.id} email={email} selected={email.id === selectedId} onSelect={setSelectedId} onListen={(id) => navigate(`/listen?emailId=${id}`)} index={i} />
           ))
         )}
       </div>
