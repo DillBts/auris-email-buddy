@@ -40,6 +40,13 @@ export interface WeeklySummary {
   audioSummary: string;
 }
 
+export type VoiceType =
+  | "en-US-Neural2-A"
+  | "en-US-Neural2-D"
+  | "en-US-Neural2-F"
+  | "en-US-Neural2-J"
+  | "en-US-Neural2-C";
+
 export interface UserPrefs {
   notifications: boolean;
   autoListen: boolean;
@@ -47,6 +54,7 @@ export interface UserPrefs {
   dailySummary: boolean;
   weeklySummary: boolean;
   voiceSpeed: VoiceSpeed;
+  voiceType: VoiceType;
 }
 
 export interface UserProfile {

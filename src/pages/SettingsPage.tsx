@@ -7,7 +7,7 @@ import { useAuthStatus, useDisconnectGmail, useUserPrefs, useUpdatePrefs, queryK
 import { useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { auth } from "@/lib/firebase";
-import type { VoiceSpeed } from "@/lib/api/types";
+import type { VoiceSpeed, VoiceType } from "@/lib/api/types";
 
 const SettingsPage = () => {
   const { data: authStatus, isLoading: authLoading } = useAuthStatus();
@@ -121,6 +121,21 @@ const SettingsPage = () => {
                   ))}
                 </div>
               </div>
+              <div>
+                <p className="text-sm font-medium text-foreground mb-2">Voice</p>
+                <select
+                  value={prefs?.voiceType ?? "en-US-Neural2-A"}
+                  onChange={(e) => handlePref("voiceType", e.target.value as VoiceType)}
+                  disabled={updatePrefsMutation.isPending}
+                  className="w-full rounded-xl border border-border bg-muted px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary disabled:opacity-50"
+                >
+                  <option value="en-US-Neural2-A">Neural2-A (Female)</option>
+                  <option value="en-US-Neural2-C">Neural2-C (Female)</option>
+                  <option value="en-US-Neural2-D">Neural2-D (Male)</option>
+                  <option value="en-US-Neural2-F">Neural2-F (Female)</option>
+                  <option value="en-US-Neural2-J">Neural2-J (Male)</option>
+                </select>
+              </div>
             </div>
           </motion.div>
 
@@ -141,7 +156,7 @@ const SettingsPage = () => {
                     <p className="text-xs text-muted-foreground">{desc}</p>
                   </div>
                   <Switch
-                    checked={prefs?.[key as keyof typeof prefs] as boolean ?? true}
+                    checked={prefs?.[key as keyof typeof prefs] as boolean ?? false}
                     onCheckedChange={(v) => handlePref(key, v)}
                     disabled={updatePrefsMutation.isPending}
                   />
@@ -160,7 +175,7 @@ const SettingsPage = () => {
                 <p className="text-sm font-medium text-foreground">Push Notifications</p>
                 <p className="text-xs text-muted-foreground">Get notified for important emails</p>
               </div>
-              <Switch checked={prefs?.notifications ?? true} onCheckedChange={(v) => handlePref("notifications", v)} disabled={updatePrefsMutation.isPending} />
+              <Switch checked={prefs?.notifications ?? false} onCheckedChange={(v) => handlePref("notifications", v)} disabled={updatePrefsMutation.isPending} />
             </div>
           </motion.div>
 
