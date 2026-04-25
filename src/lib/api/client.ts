@@ -34,6 +34,12 @@ async function request<T>(
 
   if (!res.ok) {
     const err = await res.json().catch(() => ({ error: res.statusText }));
+    if (res.status === 401 && (err.error ?? "").includes("re-authenticate")) {
+      const user = auth.currentUser;
+      if (user) {
+        window.location.href = `${BASE_URL}/auth/gmail?uid=${user.uid}`;
+      }
+    }
     throw new Error(err.error || `Request failed: ${res.status}`);
   }
 
