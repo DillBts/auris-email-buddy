@@ -90,11 +90,11 @@ const Index = () => {
       {gmailConnected && !isLoading && (
         <div className="px-4 md:px-5 pt-4 pb-0">
           <div
-            className="rounded-2xl p-4 md:p-5 mb-4 flex flex-col gap-3"
-            style={{ background: "var(--gradient-sidebar)", boxShadow: "0 4px 24px -4px hsl(210 50% 6% / 0.5)" }}
+            className="rounded-2xl p-4 md:p-5 mb-4 flex flex-col gap-3 border border-border/60"
+            style={{ backgroundColor: "#F0F4FF" }}
           >
             <div className="flex items-center justify-between">
-              <span className="text-xs font-semibold uppercase tracking-widest text-white/40">Your inbox</span>
+              <span className="text-xs font-semibold uppercase tracking-widest text-foreground/40">Your inbox</span>
               <button
                 onClick={() => navigate("/listen")}
                 className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-primary text-primary-foreground text-xs font-semibold hover:opacity-90 transition-opacity"
@@ -105,23 +105,23 @@ const Index = () => {
             </div>
             <div className="flex items-center gap-4 md:gap-6">
               <div>
-                <p className="text-2xl font-bold text-white">{unreadCount}</p>
-                <p className="text-[10px] uppercase tracking-wider text-white/45 font-medium mt-0.5">New</p>
+                <p className="text-2xl font-bold text-foreground">{unreadCount}</p>
+                <p className="text-[10px] uppercase tracking-wider text-foreground/40 font-medium mt-0.5">New</p>
               </div>
-              <div className="w-px h-8 bg-white/10" />
+              <div className="w-px h-8 bg-foreground/10" />
               <div className="flex items-center gap-1.5">
-                <AlertCircle className="w-3.5 h-3.5 text-red-400 shrink-0" />
+                <AlertCircle className="w-3.5 h-3.5 text-red-500 shrink-0" />
                 <div>
-                  <p className="text-2xl font-bold text-white">{urgentCount}</p>
-                  <p className="text-[10px] uppercase tracking-wider text-white/45 font-medium mt-0.5">Urgent</p>
+                  <p className="text-2xl font-bold text-foreground">{urgentCount}</p>
+                  <p className="text-[10px] uppercase tracking-wider text-foreground/40 font-medium mt-0.5">Urgent</p>
                 </div>
               </div>
-              <div className="w-px h-8 bg-white/10" />
+              <div className="w-px h-8 bg-foreground/10" />
               <div className="flex items-center gap-1.5">
                 <Clock className="w-3.5 h-3.5 text-primary shrink-0" />
                 <div>
-                  <p className="text-2xl font-bold text-white">{listenMins}m</p>
-                  <p className="text-[10px] uppercase tracking-wider text-white/45 font-medium mt-0.5">To listen</p>
+                  <p className="text-2xl font-bold text-foreground">{listenMins}m</p>
+                  <p className="text-[10px] uppercase tracking-wider text-foreground/40 font-medium mt-0.5">To listen</p>
                 </div>
               </div>
             </div>

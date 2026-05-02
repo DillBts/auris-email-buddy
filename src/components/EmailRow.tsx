@@ -3,6 +3,23 @@ import { motion } from "framer-motion";
 import type { Email } from "@/lib/mockData";
 import type { Priority } from "@/lib/api/types";
 
+const AVATAR_PALETTES = [
+  { bg: "#EDE9FE", text: "#6D28D9" }, // purple
+  { bg: "#CCFBF1", text: "#0D9488" }, // teal
+  { bg: "#FFE4E6", text: "#E11D48" }, // coral/rose
+  { bg: "#FEF3C7", text: "#D97706" }, // amber
+  { bg: "#DCFCE7", text: "#16A34A" }, // green
+  { bg: "#DBEAFE", text: "#2563EB" }, // blue
+  { bg: "#FCE7F3", text: "#DB2777" }, // pink
+  { bg: "#F3E8FF", text: "#9333EA" }, // violet
+];
+
+function avatarPalette(name: string) {
+  let hash = 0;
+  for (let i = 0; i < name.length; i++) hash = (hash * 31 + name.charCodeAt(i)) >>> 0;
+  return AVATAR_PALETTES[hash % AVATAR_PALETTES.length];
+}
+
 const priorityMeta: Record<Priority, { label: string; color: string }> = {
   "very-important": { label: "Urgent", color: "hsl(0 72% 60%)" },
   important:        { label: "Important", color: "hsl(38 90% 55%)" },
@@ -19,6 +36,7 @@ interface EmailRowProps {
 
 export function EmailRow({ email, selected, onSelect, onListen, index }: EmailRowProps) {
   const meta = priorityMeta[email.priority];
+  const palette = avatarPalette(email.from);
 
   return (
     <motion.button
@@ -33,7 +51,10 @@ export function EmailRow({ email, selected, onSelect, onListen, index }: EmailRo
       } ${!email.read ? "bg-card" : ""}`}
     >
       {/* Avatar */}
-      <div className="w-9 h-9 rounded-full gradient-primary flex items-center justify-center text-sm font-bold text-primary-foreground shrink-0 mt-0.5">
+      <div
+        className="w-9 h-9 rounded-full flex items-center justify-center text-sm font-bold shrink-0 mt-0.5"
+        style={{ backgroundColor: palette.bg, color: palette.text }}
+      >
         {email.from[0]}
       </div>
 
