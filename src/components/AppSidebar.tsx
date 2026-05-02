@@ -35,17 +35,30 @@ export function AppSidebar() {
     >
       {/* Logo */}
       <div className="flex items-center gap-3 px-5 h-16 shrink-0">
-        <div className="w-8 h-8 rounded-lg gradient-primary flex items-center justify-center shrink-0 gap-[2px]">
-          {[1, 1.6, 1, 0.6, 1].map((scale, i) => (
-            <motion.span
-              key={i}
-              className="w-[3px] rounded-full bg-primary-foreground"
-              animate={{ scaleY: [scale, scale * 2.2, scale] }}
-              transition={{ duration: 0.9, repeat: Infinity, delay: i * 0.12, ease: "easeInOut" }}
-              style={{ height: 10, transformOrigin: "center" }}
-            />
-          ))}
-        </div>
+        <svg
+          width="32"
+          height="32"
+          viewBox="0 0 32 32"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+          className="shrink-0"
+        >
+          <defs>
+            <linearGradient id="auris-grad" x1="0" y1="0" x2="32" y2="32" gradientUnits="userSpaceOnUse">
+              <stop offset="0%" stopColor="#7C3AED" />
+              <stop offset="100%" stopColor="#2563EB" />
+            </linearGradient>
+          </defs>
+          {/* Envelope body — rounded rect */}
+          <rect x="1.5" y="7.5" width="19" height="14" rx="2.5" stroke="url(#auris-grad)" strokeWidth="1.6" />
+          {/* Envelope flap V */}
+          <polyline points="1.5,9 11,16 20.5,9" stroke="url(#auris-grad)" strokeWidth="1.6" strokeLinejoin="round" strokeLinecap="round" />
+          {/* Waveform bars — 5 bars of varying heights, right of envelope */}
+          <line x1="24" y1="13" x2="24" y2="19" stroke="url(#auris-grad)" strokeWidth="1.8" strokeLinecap="round" />
+          <line x1="26.5" y1="11" x2="26.5" y2="21" stroke="url(#auris-grad)" strokeWidth="1.8" strokeLinecap="round" />
+          <line x1="29" y1="14" x2="29" y2="18" stroke="url(#auris-grad)" strokeWidth="1.8" strokeLinecap="round" />
+          <line x1="31.2" y1="12.5" x2="31.2" y2="19.5" stroke="url(#auris-grad)" strokeWidth="1" strokeLinecap="round" />
+        </svg>
         {!collapsed && (
           <motion.div
             initial={{ opacity: 0 }}
