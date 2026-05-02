@@ -35,17 +35,26 @@ export function AppSidebar() {
     >
       {/* Logo */}
       <div className="flex items-center gap-3 px-5 h-16 shrink-0">
-        <div className="w-8 h-8 rounded-lg gradient-primary flex items-center justify-center shrink-0">
-          <Headphones className="w-4 h-4 text-primary-foreground" />
+        <div className="w-8 h-8 rounded-lg gradient-primary flex items-center justify-center shrink-0 gap-[2px]">
+          {[1, 1.6, 1, 0.6, 1].map((scale, i) => (
+            <motion.span
+              key={i}
+              className="w-[3px] rounded-full bg-primary-foreground"
+              animate={{ scaleY: [scale, scale * 2.2, scale] }}
+              transition={{ duration: 0.9, repeat: Infinity, delay: i * 0.12, ease: "easeInOut" }}
+              style={{ height: 10, transformOrigin: "center" }}
+            />
+          ))}
         </div>
         {!collapsed && (
-          <motion.span
+          <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="font-bold text-lg text-sidebar-foreground tracking-tight"
+            className="flex flex-col leading-tight"
           >
-            Auris
-          </motion.span>
+            <span className="font-bold text-lg text-sidebar-foreground tracking-tight">Auris</span>
+            <span className="text-[10px] text-sidebar-foreground/45 font-medium tracking-wide">Listen only to what matters</span>
+          </motion.div>
         )}
       </div>
 

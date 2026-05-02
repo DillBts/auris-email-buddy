@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Search, Filter, Headphones, Loader2, Mail } from "lucide-react";
+import { Search, Filter, Headphones, Loader2, Mail, Clock, AlertCircle } from "lucide-react";
 import { EmailRow } from "@/components/EmailRow";
 import { EmailDetail } from "@/components/EmailDetail";
 import { useInbox, useTrashEmail, useStarEmail, useAuthStatus } from "@/lib/api/hooks";
@@ -81,8 +81,54 @@ const Index = () => {
     );
   }
 
+  const unreadCount = emails.filter((e) => !e.read).length;
+  const urgentCount = emails.filter((e) => e.priority === "very-important").length;
+  const listenMins = Math.round(emails.length * 1.5);
+
   return (
     <div className="flex flex-col h-full">
+      {gmailConnected && !isLoading && (
+        <div className="px-4 md:px-5 pt-4 pb-0">
+          <div
+            className="rounded-2xl p-4 md:p-5 mb-4 flex flex-col gap-3"
+            style={{ background: "var(--gradient-sidebar)", boxShadow: "0 4px 24px -4px hsl(210 50% 6% / 0.5)" }}
+          >
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-semibold uppercase tracking-widest text-white/40">Your inbox</span>
+              <button
+                onClick={() => navigate("/listen")}
+                className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-primary text-primary-foreground text-xs font-semibold hover:opacity-90 transition-opacity"
+              >
+                <Headphones className="w-3.5 h-3.5" />
+                Start Listening
+              </button>
+            </div>
+            <div className="flex items-center gap-4 md:gap-6">
+              <div>
+                <p className="text-2xl font-bold text-white">{unreadCount}</p>
+                <p className="text-[10px] uppercase tracking-wider text-white/45 font-medium mt-0.5">New</p>
+              </div>
+              <div className="w-px h-8 bg-white/10" />
+              <div className="flex items-center gap-1.5">
+                <AlertCircle className="w-3.5 h-3.5 text-red-400 shrink-0" />
+                <div>
+                  <p className="text-2xl font-bold text-white">{urgentCount}</p>
+                  <p className="text-[10px] uppercase tracking-wider text-white/45 font-medium mt-0.5">Urgent</p>
+                </div>
+              </div>
+              <div className="w-px h-8 bg-white/10" />
+              <div className="flex items-center gap-1.5">
+                <Clock className="w-3.5 h-3.5 text-primary shrink-0" />
+                <div>
+                  <p className="text-2xl font-bold text-white">{listenMins}m</p>
+                  <p className="text-[10px] uppercase tracking-wider text-white/45 font-medium mt-0.5">To listen</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="px-4 md:px-5 py-3 md:py-4 border-b border-border/50">
         <div className="flex items-center justify-between mb-3 md:mb-4">
           <div className="flex items-center gap-2">
@@ -91,9 +137,6 @@ const Index = () => {
               {filteredEmails.filter((e) => !e.read).length} new
             </span>
           </div>
-          <button className="p-2 rounded-lg hover:bg-muted transition-colors text-primary" title="Listen to all">
-            <Headphones className="w-5 h-5" />
-          </button>
         </div>
 
         <div className="relative mb-3">
