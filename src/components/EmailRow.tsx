@@ -1,7 +1,13 @@
 import { Star, Headphones } from "lucide-react";
 import { motion } from "framer-motion";
 import type { Email } from "@/lib/mockData";
-import { PriorityBadge } from "./PriorityBadge";
+import type { Priority } from "@/lib/api/types";
+
+const priorityMeta: Record<Priority, { label: string; color: string }> = {
+  "very-important": { label: "Urgent", color: "hsl(0 72% 60%)" },
+  important:        { label: "Important", color: "hsl(38 90% 55%)" },
+  "not-important":  { label: "Low Priority", color: "hsl(220 5% 55%)" },
+};
 
 interface EmailRowProps {
   email: Email;
@@ -12,38 +18,45 @@ interface EmailRowProps {
 }
 
 export function EmailRow({ email, selected, onSelect, onListen, index }: EmailRowProps) {
+  const meta = priorityMeta[email.priority];
+
   return (
     <motion.button
       initial={{ opacity: 0, y: 6 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.03, duration: 0.25 }}
       onClick={() => onSelect(email.id)}
-      className={`w-full text-left flex items-start gap-4 px-5 py-4 border-b border-border/50 transition-all duration-200 group ${
+      className={`w-full text-left flex items-start gap-4 px-5 py-5 border-b border-border/50 transition-all duration-200 group ${
         selected
           ? "bg-primary/8 border-l-2 border-l-primary"
           : "hover:bg-muted/50 border-l-2 border-l-transparent"
       } ${!email.read ? "bg-card" : ""}`}
     >
       {/* Avatar */}
-      <div className="w-10 h-10 rounded-full gradient-primary flex items-center justify-center text-sm font-bold text-primary-foreground shrink-0 mt-0.5">
+      <div className="w-9 h-9 rounded-full gradient-primary flex items-center justify-center text-sm font-bold text-primary-foreground shrink-0 mt-0.5">
         {email.from[0]}
       </div>
 
       {/* Content */}
-      <div className="flex-1 min-w-0">
-        <div className="flex items-center justify-between gap-2 mb-1">
-          <span className={`text-sm truncate ${!email.read ? "font-bold text-foreground" : "font-medium text-foreground/80"}`}>
-            {email.from}
-          </span>
-          <span className="text-xs text-muted-foreground shrink-0">{email.time}</span>
-        </div>
-        <p className={`text-sm truncate mb-1.5 ${!email.read ? "font-semibold text-foreground" : "text-foreground/70"}`}>
+      <div className="flex-1 min-w-0 flex flex-col gap-1">
+        <span className={`text-sm leading-snug truncate ${!email.read ? "font-bold text-foreground" : "font-medium text-foreground/75"}`}>
+          {email.from}
+        </span>
+        <p className={`text-sm leading-snug truncate ${!email.read ? "font-semibold text-foreground/90" : "font-normal text-foreground/60"}`}>
           {email.subject}
         </p>
-        <p className="text-xs text-muted-foreground truncate">{email.preview}</p>
-        <div className="flex items-center gap-2 mt-2">
-          <PriorityBadge priority={email.priority} />
-          {email.starred && <Star className="w-3.5 h-3.5 text-priority-medium fill-priority-medium" />}
+        <p className="text-xs text-muted-foreground/70 truncate leading-snug">{email.preview}</p>
+        <div className="flex items-center gap-1.5 mt-1">
+          <span
+            className="rounded-full shrink-0"
+            style={{ width: 6, height: 6, backgroundColor: meta.color }}
+          />
+          <span className="text-[11px] text-muted-foreground/60 font-medium">
+            {meta.label} · {email.time}
+          </span>
+          {email.starred && (
+            <Star className="w-3 h-3 text-priority-medium fill-priority-medium ml-1 shrink-0" />
+          )}
         </div>
       </div>
 
@@ -53,7 +66,7 @@ export function EmailRow({ email, selected, onSelect, onListen, index }: EmailRo
           e.stopPropagation();
           onListen?.(email.id);
         }}
-        className="opacity-0 group-hover:opacity-100 transition-opacity p-2 rounded-full hover:bg-primary/10 text-primary shrink-0 mt-1"
+        className="opacity-0 group-hover:opacity-100 transition-opacity p-2 rounded-full hover:bg-primary/10 text-primary shrink-0 mt-0.5"
         title="Listen to email"
       >
         <Headphones className="w-4 h-4" />
