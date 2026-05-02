@@ -59,7 +59,7 @@ const Summaries = () => {
                 <div className="grid grid-cols-3 gap-2 md:gap-3 mb-5">
                   <div className="bg-destructive/10 rounded-xl p-2 md:p-3 text-center">
                     <p className="text-xl md:text-2xl font-bold text-destructive">{day.veryImportant}</p>
-                    <p className="text-[9px] md:text-[10px] uppercase tracking-wider text-destructive/70 font-semibold">Very Important</p>
+                    <p className="text-[9px] md:text-[10px] uppercase tracking-wider text-destructive/70 font-semibold">Urgent</p>
                   </div>
                   <div className="bg-priority-medium/10 rounded-xl p-2 md:p-3 text-center">
                     <p className="text-xl md:text-2xl font-bold text-priority-medium">{day.important}</p>
@@ -67,7 +67,7 @@ const Summaries = () => {
                   </div>
                   <div className="bg-priority-low/10 rounded-xl p-2 md:p-3 text-center">
                     <p className="text-xl md:text-2xl font-bold text-priority-low">{day.notImportant}</p>
-                    <p className="text-[9px] md:text-[10px] uppercase tracking-wider text-priority-low/70 font-semibold">Not Important</p>
+                    <p className="text-[9px] md:text-[10px] uppercase tracking-wider text-priority-low/70 font-semibold">Low Priority</p>
                   </div>
                 </div>
                 {day.highlights.length > 0 && (
@@ -100,7 +100,7 @@ const Summaries = () => {
               <div className="grid grid-cols-3 gap-2 md:gap-3 mb-6">
                 <div className="bg-destructive/10 rounded-xl p-2 md:p-3 text-center">
                   <p className="text-xl md:text-2xl font-bold text-destructive">{mockWeeklySummary.veryImportant}</p>
-                  <p className="text-[9px] md:text-[10px] uppercase tracking-wider text-destructive/70 font-semibold">Very Important</p>
+                  <p className="text-[9px] md:text-[10px] uppercase tracking-wider text-destructive/70 font-semibold">Urgent</p>
                 </div>
                 <div className="bg-priority-medium/10 rounded-xl p-2 md:p-3 text-center">
                   <p className="text-xl md:text-2xl font-bold text-priority-medium">{mockWeeklySummary.important}</p>
@@ -108,7 +108,7 @@ const Summaries = () => {
                 </div>
                 <div className="bg-priority-low/10 rounded-xl p-2 md:p-3 text-center">
                   <p className="text-xl md:text-2xl font-bold text-priority-low">{mockWeeklySummary.notImportant}</p>
-                  <p className="text-[9px] md:text-[10px] uppercase tracking-wider text-priority-low/70 font-semibold">Not Important</p>
+                  <p className="text-[9px] md:text-[10px] uppercase tracking-wider text-priority-low/70 font-semibold">Low Priority</p>
                 </div>
               </div>
               <p className="text-sm text-foreground/80 leading-relaxed bg-muted/30 rounded-xl p-4">{mockWeeklySummary.summary}</p>

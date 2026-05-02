@@ -48,7 +48,7 @@
     /* Custom tokens */
     --priority-high: 0 72% 60%;
     --priority-medium: 38 90% 55%;
-    --priority-low: 150 50% 50%;
+    --priority-low: 220 5% 55%;
     --surface-glass: 205 60% 97% / 0.8;
     --shadow-soft: 0 8px 32px -8px hsl(205 85% 68% / 0.15);
     --shadow-card: 0 2px 12px -2px hsl(210 50% 10% / 0.06);

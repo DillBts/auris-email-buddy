@@ -44,9 +44,9 @@ const Index = () => {
 
   const filterOptions = [
     { value: "all", label: "All" },
-    { value: "very-important", label: "🔴 Very Important" },
-    { value: "important", label: "🟡 Important" },
-    { value: "not-important", label: "🟢 Not Important" },
+    { value: "very-important", label: "🔴 Urgent" },
+    { value: "important", label: "🟠 Important" },
+    { value: "not-important", label: "⚪ Low Priority" },
     { value: "unread", label: "Unread" },
   ];
 

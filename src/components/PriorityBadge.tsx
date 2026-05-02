@@ -1,9 +1,9 @@
 import type { Priority } from "@/lib/mockData";
 
 const config: Record<Priority, { label: string; className: string }> = {
-  "very-important": { label: "Very Important", className: "priority-high" },
+  "very-important": { label: "Urgent", className: "priority-high" },
   important: { label: "Important", className: "priority-medium" },
-  "not-important": { label: "Not Important", className: "priority-low" },
+  "not-important": { label: "Low Priority", className: "priority-low" },
 };
 
 export function PriorityBadge({ priority }: { priority: Priority }) {
