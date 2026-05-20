@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { motion } from "framer-motion";
 import { Settings, Mail, Bell, Headphones, Volume2, Zap, ExternalLink, Loader2 } from "lucide-react";
+import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { useAuthStatus, useDisconnectGmail, useUserPrefs, useUpdatePrefs, queryKeys } from "@/lib/api/hooks";
@@ -179,6 +180,12 @@ const SettingsPage = () => {
           </motion.div>
 
         </div>
+
+        <p className="text-xs text-muted-foreground text-center pt-2 pb-4">
+          <Link to="/privacy" className="underline underline-offset-2 hover:text-foreground transition-colors">
+            Privacy Policy
+          </Link>
+        </p>
       </div>
     </div>
   );

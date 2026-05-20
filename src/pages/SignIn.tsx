@@ -2,7 +2,7 @@ import { motion } from "framer-motion";
 import { Headphones, Mail, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 
 const SignIn = () => {
@@ -79,6 +79,12 @@ const SignIn = () => {
 
         <p className="text-xs text-muted-foreground mt-6">
           We'll only read the emails you choose to listen to.
+        </p>
+
+        <p className="text-xs text-muted-foreground mt-4">
+          <Link to="/privacy" className="underline underline-offset-2 hover:text-foreground transition-colors">
+            Privacy Policy
+          </Link>
         </p>
       </motion.div>
     </div>
