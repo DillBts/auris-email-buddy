@@ -35,6 +35,7 @@ const Listen = () => {
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [showVoicePanel, setShowVoicePanel] = useState(false);
+  const [urgentOnly, setUrgentOnly] = useState(false);
   const audioRef = useRef<HTMLAudioElement>(null);
   const autoPlayRef = useRef(false);
   const didAutoStart = useRef(false);
@@ -49,7 +50,8 @@ const Listen = () => {
   const updatePrefsMutation = useUpdatePrefs();
   const trashMutation = useTrashEmail();
   const emails = inboxData?.emails ?? [];
-  const current = emails[currentIndex];
+  const filteredEmails = urgentOnly ? emails.filter((e) => e.priority === "very-important") : emails;
+  const current = filteredEmails[currentIndex];
   const speed: VoiceSpeed = prefsData?.prefs?.voiceSpeed ?? "normal";
   const voiceType: VoiceType = prefsData?.prefs?.voiceType ?? "en-US-Neural2-A";
 
@@ -57,11 +59,15 @@ const Listen = () => {
   const { data: audioUrls } = useAudioUrls(current?.id ?? "", speed, audioReady);
 
   useEffect(() => {
-    if (!deepLinkId || emails.length === 0) return;
-    const idx = emails.findIndex((e) => e.id === deepLinkId);
+    if (!deepLinkId || filteredEmails.length === 0) return;
+    const idx = filteredEmails.findIndex((e) => e.id === deepLinkId);
     if (idx !== -1) setCurrentIndex(idx);
     if (deepLinkMode) setMode(deepLinkMode);
-  }, [deepLinkId, emails.length]);
+  }, [deepLinkId, filteredEmails.length]);
+
+  useEffect(() => {
+    goTo(0);
+  }, [urgentOnly]);
 
   useEffect(() => {
     if (!deepLinkId || didAutoStart.current || !current || current.id !== deepLinkId) return;
@@ -136,21 +142,21 @@ const Listen = () => {
   };
 
   const handleSkip = () => {
-    if (currentIndex < emails.length - 1) goTo(currentIndex + 1);
+    if (currentIndex < filteredEmails.length - 1) goTo(currentIndex + 1);
   };
 
   const handleArchive = async () => {
     if (!current) return;
     try {
       await trashMutation.mutateAsync(current.id);
-      if (currentIndex < emails.length - 1) goTo(currentIndex + 1);
+      if (currentIndex < filteredEmails.length - 1) goTo(currentIndex + 1);
       else goTo(Math.max(0, currentIndex - 1));
     } catch {
       toast({ title: "Failed to archive email", variant: "destructive" });
     }
   };
 
-  const remainingMins = Math.round((emails.length - currentIndex - 1) * 1.5);
+  const remainingMins = Math.round((filteredEmails.length - currentIndex - 1) * 1.5);
   const progressPct = duration > 0 ? (currentTime / duration) * 100 : 0;
   const isGenerating = generateMutation.isPending;
 
@@ -158,14 +164,6 @@ const Listen = () => {
     return (
       <div className="flex items-center justify-center h-full">
         <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
-      </div>
-    );
-  }
-
-  if (!current) {
-    return (
-      <div className="flex items-center justify-center h-full">
-        <p className="text-muted-foreground">No emails to listen to.</p>
       </div>
     );
   }
@@ -178,7 +176,7 @@ const Listen = () => {
         onLoadedMetadata={() => setDuration(audioRef.current?.duration ?? 0)}
         onEnded={() => {
           setPlaying(false);
-          if (currentIndex < emails.length - 1) goTo(currentIndex + 1);
+          if (currentIndex < filteredEmails.length - 1) goTo(currentIndex + 1);
         }}
       />
 
@@ -189,21 +187,54 @@ const Listen = () => {
             <Headphones className="w-5 h-5 text-primary" />
             Listen Mode
           </h1>
-          <span className="text-sm text-muted-foreground">
-            Email {currentIndex + 1} of {emails.length}
-            {remainingMins > 0 && <> · <span className="text-foreground/60">{remainingMins} min remaining</span></>}
-          </span>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => setUrgentOnly((v) => !v)}
+              className={`px-3 py-1 rounded-full text-xs font-medium transition-all border ${
+                urgentOnly
+                  ? "bg-amber-500/15 text-amber-600 border-amber-400/40 dark:text-amber-400"
+                  : "bg-muted text-muted-foreground border-transparent hover:bg-muted/80"
+              }`}
+            >
+              {urgentOnly ? "Urgent only" : "All emails"}
+            </button>
+            {current && (
+              <span className="text-sm text-muted-foreground">
+                Email {currentIndex + 1} of {filteredEmails.length}
+                {remainingMins > 0 && <> · <span className="text-foreground/60">{remainingMins} min remaining</span></>}
+              </span>
+            )}
+          </div>
         </div>
 
         {/* Session progress line */}
         <div className="mt-2.5 h-1 bg-muted rounded-full overflow-hidden">
           <div
             className="h-full bg-primary rounded-full transition-all duration-300"
-            style={{ width: emails.length > 0 ? `${((currentIndex + 1) / emails.length) * 100}%` : "0%" }}
+            style={{ width: filteredEmails.length > 0 && current ? `${((currentIndex + 1) / filteredEmails.length) * 100}%` : "0%" }}
           />
         </div>
       </div>
 
+      {!current ? (
+        <div className="flex flex-col items-center justify-center flex-1 gap-3 text-center px-6">
+          {urgentOnly ? (
+            <>
+              <span className="text-3xl">✓</span>
+              <p className="text-base font-medium text-foreground">No urgent emails right now</p>
+              <p className="text-sm text-muted-foreground">You're all caught up on priority messages.</p>
+              <button
+                onClick={() => setUrgentOnly(false)}
+                className="mt-2 px-4 py-1.5 rounded-full text-xs font-medium bg-muted text-muted-foreground hover:bg-muted/80 transition-all"
+              >
+                Show all emails
+              </button>
+            </>
+          ) : (
+            <p className="text-muted-foreground">No emails to listen to.</p>
+          )}
+        </div>
+      ) : (
       <div className="flex-1 overflow-y-auto flex items-start md:items-center justify-center p-4 md:p-8">
         <motion.div
           key={current.id}
@@ -289,8 +320,8 @@ const Listen = () => {
               </Button>
 
               <button
-                onClick={() => goTo(Math.min(emails.length - 1, currentIndex + 1))}
-                disabled={currentIndex === emails.length - 1}
+                onClick={() => goTo(Math.min(filteredEmails.length - 1, currentIndex + 1))}
+                disabled={currentIndex === filteredEmails.length - 1}
                 className="p-3 rounded-full hover:bg-muted transition-colors text-foreground/50 disabled:opacity-30"
               >
                 <SkipForward className="w-5 h-5" />
@@ -358,7 +389,7 @@ const Listen = () => {
             <div className="flex items-center justify-center gap-3 mt-5 pt-5 border-t border-border/40">
               <button
                 onClick={handleSkip}
-                disabled={currentIndex === emails.length - 1}
+                disabled={currentIndex === filteredEmails.length - 1}
                 className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm text-muted-foreground hover:text-foreground hover:bg-muted transition-all disabled:opacity-30"
               >
                 <SkipForward className="w-4 h-4" />
@@ -378,14 +409,14 @@ const Listen = () => {
           {/* Queue */}
           <div className="mt-5 md:mt-6">
             <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">
-              Up Next ({emails.length - currentIndex - 1} remaining)
+              Up Next ({filteredEmails.length - currentIndex - 1} remaining)
             </p>
             <div className="space-y-2">
-              {emails.slice(currentIndex + 1, currentIndex + 4).map((email) => (
+              {filteredEmails.slice(currentIndex + 1, currentIndex + 4).map((email) => (
                 <div
                   key={email.id}
                   className="flex items-center gap-3 p-3 rounded-xl bg-card/60 border border-border/30 cursor-pointer hover:bg-muted/50 transition-colors"
-                  onClick={() => goTo(emails.indexOf(email))}
+                  onClick={() => goTo(filteredEmails.indexOf(email))}
                 >
                   <div className="w-8 h-8 rounded-full gradient-primary flex items-center justify-center text-xs font-bold text-primary-foreground shrink-0">
                     {email.from[0]}
@@ -401,6 +432,7 @@ const Listen = () => {
           </div>
         </motion.div>
       </div>
+      )}
     </div>
   );
 };
