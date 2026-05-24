@@ -1,8 +1,26 @@
+import { useState } from "react";
 import { motion } from "framer-motion";
 import { Headphones, Trash2, Star, ArrowLeft, Volume2 } from "lucide-react";
 import type { Email } from "@/lib/mockData";
 import { PriorityBadge } from "./PriorityBadge";
 import { Button } from "./ui/button";
+
+const PREVIEW_LENGTH = 500;
+
+function cleanEmailBody(raw: string): string {
+  return raw
+    .replace(/<[^>]+>/g, " ")
+    .replace(/&nbsp;/g, " ").replace(/&amp;/g, "&").replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">").replace(/&quot;/g, '"').replace(/&#39;/g, "'")
+    .replace(/<https?:\/\/[^>]*>/g, "")
+    .replace(/\[([^\]]+)\]\(https?:\/\/[^)]*\)/g, "$1")
+    .replace(/https?:\/\/\S+/g, "")
+    .split("\n")
+    .filter((line) => line.trim().split(/\s+/).length > 1)
+    .join("\n")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
+}
 
 interface EmailDetailProps {
   email: Email;
@@ -15,6 +33,11 @@ interface EmailDetailProps {
 }
 
 export function EmailDetail({ email, onBack, onTrash, onListen, onStar, starPending, trashPending }: EmailDetailProps) {
+  const [expanded, setExpanded] = useState(false);
+  const cleaned = cleanEmailBody(email.body);
+  const truncated = cleaned.length > PREVIEW_LENGTH && !expanded;
+  const displayBody = truncated ? cleaned.slice(0, PREVIEW_LENGTH) + "…" : cleaned;
+
   return (
     <motion.div
       initial={{ opacity: 0, x: 20 }}
@@ -83,8 +106,16 @@ export function EmailDetail({ email, onBack, onTrash, onListen, onStar, starPend
           </div>
 
           <div className="text-sm text-foreground/85 leading-relaxed whitespace-pre-line">
-            {email.body}
+            {displayBody}
           </div>
+          {cleaned.length > PREVIEW_LENGTH && (
+            <button
+              onClick={() => setExpanded((e) => !e)}
+              className="mt-3 text-xs text-primary hover:underline"
+            >
+              {expanded ? "Show less" : "Show more"}
+            </button>
+          )}
         </div>
       </div>
     </motion.div>
