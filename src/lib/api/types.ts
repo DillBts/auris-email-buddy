@@ -30,6 +30,7 @@ export interface DailySummary {
 
 export interface WeeklySummary {
   week: string;
+  weekStart: string;
   totalEmails: number;
   veryImportant: number;
   important: number;

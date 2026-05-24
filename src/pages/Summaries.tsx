@@ -142,7 +142,7 @@ const Summaries = () => {
               <div className="flex items-center justify-between mb-1">
                 <h3 className="font-bold text-foreground">{mockWeeklySummary.week}</h3>
                 <button
-                  onClick={() => handleListen(WEEKLY_ID, mockWeeklySummary.week, mockWeeklySummary.audioSummary, "weekly")}
+                  onClick={() => handleListen(WEEKLY_ID, weeklyData?.summary.weekStart ?? mockWeeklySummary.week, mockWeeklySummary.audioSummary, "weekly")}
                   disabled={loadingId === WEEKLY_ID}
                   className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors disabled:opacity-60 ${errorId === WEEKLY_ID ? "bg-destructive/10 text-destructive hover:bg-destructive/20" : "bg-primary/10 text-primary hover:bg-primary/20"}`}
                 >
