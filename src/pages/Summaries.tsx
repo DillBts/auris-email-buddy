@@ -1,12 +1,28 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { motion } from "framer-motion";
-import { BarChart3, Calendar, TrendingUp, Headphones, AlertCircle, CheckCircle } from "lucide-react";
+import { BarChart3, Calendar, TrendingUp, Headphones, AlertCircle, CheckCircle, Loader2, Pause } from "lucide-react";
 import { useDailySummaries, useWeeklySummary, useGenerateSummaryAudio, useUserPrefs } from "@/lib/api/hooks";
+
+const WEEKLY_ID = "__weekly__";
 
 const Summaries = () => {
   const [tab, setTab] = useState<"daily" | "weekly">("daily");
+  const [playingId, setPlayingId] = useState<string | null>(null);
+  const [loadingId, setLoadingId] = useState<string | null>(null);
+  const [errorId, setErrorId] = useState<string | null>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+
   const { data: dailyData } = useDailySummaries(7);
   const { data: weeklyData } = useWeeklySummary();
+  const { data: prefsData } = useUserPrefs();
+  const generateAudio = useGenerateSummaryAudio();
+
+  const voiceSpeed = prefsData?.prefs?.voiceSpeed ?? "normal";
+
+  useEffect(() => {
+    return () => { audioRef.current?.pause(); };
+  }, []);
+
   const mockDailySummaries = dailyData?.summaries ?? [];
   const mockWeeklySummary = weeklyData?.summary ?? {
     week: "",
@@ -17,6 +33,34 @@ const Summaries = () => {
     summary: "",
     actionItems: [] as string[],
     topSenders: [] as { name: string; count: number }[],
+  };
+
+  const handleListen = async (trackId: string, summaryId: string, text: string, type: "daily" | "weekly") => {
+    if (playingId === trackId) {
+      audioRef.current?.pause();
+      setPlayingId(null);
+      return;
+    }
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current = null;
+    }
+    setPlayingId(null);
+    setErrorId(null);
+    setLoadingId(trackId);
+    try {
+      const result = await generateAudio.mutateAsync({ summaryId, text, type, speed: voiceSpeed });
+      const audio = new Audio(result.url);
+      audioRef.current = audio;
+      audio.onended = () => setPlayingId(null);
+      audio.onerror = () => { setPlayingId(null); setErrorId(trackId); };
+      await audio.play();
+      setPlayingId(trackId);
+    } catch {
+      setErrorId(trackId);
+    } finally {
+      setLoadingId(null);
+    }
   };
 
   return (
@@ -50,9 +94,15 @@ const Summaries = () => {
                   <h3 className="font-bold text-foreground">{day.date}</h3>
                   <div className="flex items-center gap-2">
                     <span className="text-sm text-muted-foreground">{day.totalEmails} emails</span>
-                    <button className="flex items-center gap-1.5 px-3 py-1 rounded-lg bg-primary/10 text-primary text-xs font-medium hover:bg-primary/20 transition-colors">
-                      <Headphones className="w-3 h-3" />
-                      Listen
+                    <button
+                      onClick={() => handleListen(day.date, day.date, day.audioSummary, "daily")}
+                      disabled={loadingId === day.date}
+                      className={`flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-medium transition-colors disabled:opacity-60 ${errorId === day.date ? "bg-destructive/10 text-destructive hover:bg-destructive/20" : "bg-primary/10 text-primary hover:bg-primary/20"}`}
+                    >
+                      {loadingId === day.date ? <><Loader2 className="w-3 h-3 animate-spin" />Generating…</>
+                        : playingId === day.date ? <><Pause className="w-3 h-3" />Pause</>
+                        : errorId === day.date ? <><AlertCircle className="w-3 h-3" />Retry</>
+                        : <><Headphones className="w-3 h-3" />Listen</>}
                     </button>
                   </div>
                 </div>
@@ -91,9 +141,15 @@ const Summaries = () => {
             <div className="glass-surface rounded-2xl p-4 md:p-6 mb-4 md:mb-6">
               <div className="flex items-center justify-between mb-1">
                 <h3 className="font-bold text-foreground">{mockWeeklySummary.week}</h3>
-                <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary/10 text-primary text-sm font-medium hover:bg-primary/20 transition-colors">
-                  <Headphones className="w-4 h-4" />
-                  Listen to Summary
+                <button
+                  onClick={() => handleListen(WEEKLY_ID, mockWeeklySummary.week, mockWeeklySummary.audioSummary, "weekly")}
+                  disabled={loadingId === WEEKLY_ID}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors disabled:opacity-60 ${errorId === WEEKLY_ID ? "bg-destructive/10 text-destructive hover:bg-destructive/20" : "bg-primary/10 text-primary hover:bg-primary/20"}`}
+                >
+                  {loadingId === WEEKLY_ID ? <><Loader2 className="w-4 h-4 animate-spin" />Generating…</>
+                    : playingId === WEEKLY_ID ? <><Pause className="w-4 h-4" />Pause</>
+                    : errorId === WEEKLY_ID ? <><AlertCircle className="w-4 h-4" />Retry</>
+                    : <><Headphones className="w-4 h-4" />Listen to Summary</>}
                 </button>
               </div>
               <p className="text-sm text-muted-foreground mb-5">{mockWeeklySummary.totalEmails} total emails</p>
