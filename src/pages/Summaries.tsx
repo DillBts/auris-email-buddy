@@ -49,6 +49,7 @@ const Summaries = () => {
     setErrorId(null);
     setLoadingId(trackId);
     try {
+      console.log("[handleListen] summaryId being sent:", summaryId);
       const result = await generateAudio.mutateAsync({ summaryId, text, type, speed: voiceSpeed });
       const audio = new Audio(result.url);
       audioRef.current = audio;
@@ -95,7 +96,13 @@ const Summaries = () => {
                   <div className="flex items-center gap-2">
                     <span className="text-sm text-muted-foreground">{day.totalEmails} emails</span>
                     <button
-                      onClick={() => handleListen(day.date, day.date, day.audioSummary, "daily")}
+                      onClick={() => {
+                        if (!day.date || !/^\d{4}-\d{2}-\d{2}$/.test(day.date)) {
+                          console.error("[Summaries] invalid daily summaryId:", day.date);
+                          return;
+                        }
+                        handleListen(day.date, day.date, day.audioSummary, "daily");
+                      }}
                       disabled={loadingId === day.date}
                       className={`flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-medium transition-colors disabled:opacity-60 ${errorId === day.date ? "bg-destructive/10 text-destructive hover:bg-destructive/20" : "bg-primary/10 text-primary hover:bg-primary/20"}`}
                     >
@@ -142,7 +149,14 @@ const Summaries = () => {
               <div className="flex items-center justify-between mb-1">
                 <h3 className="font-bold text-foreground">{mockWeeklySummary.week}</h3>
                 <button
-                  onClick={() => handleListen(WEEKLY_ID, weeklyData?.summary.weekStart ?? mockWeeklySummary.week, mockWeeklySummary.audioSummary, "weekly")}
+                  onClick={() => {
+                    const weekStart = weeklyData?.summary?.weekStart;
+                    if (!weekStart) {
+                      console.error("[Summaries] weekStart missing — full summary object:", weeklyData?.summary);
+                      return;
+                    }
+                    handleListen(WEEKLY_ID, weekStart, mockWeeklySummary.audioSummary, "weekly");
+                  }}
                   disabled={loadingId === WEEKLY_ID}
                   className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors disabled:opacity-60 ${errorId === WEEKLY_ID ? "bg-destructive/10 text-destructive hover:bg-destructive/20" : "bg-primary/10 text-primary hover:bg-primary/20"}`}
                 >
