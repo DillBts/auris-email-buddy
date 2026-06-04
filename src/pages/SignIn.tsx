@@ -81,9 +81,13 @@ const SignIn = () => {
           We'll only read the emails you choose to listen to.
         </p>
 
-        <p className="text-xs text-muted-foreground mt-4">
+        <p className="text-xs text-muted-foreground mt-4 flex items-center gap-2">
           <Link to="/privacy" className="underline underline-offset-2 hover:text-foreground transition-colors">
             Privacy Policy
+          </Link>
+          <span>·</span>
+          <Link to="/terms" className="underline underline-offset-2 hover:text-foreground transition-colors">
+            Terms of Service
           </Link>
         </p>
       </motion.div>
