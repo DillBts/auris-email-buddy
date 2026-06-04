@@ -80,4 +80,5 @@ export const userApi = {
     api.patch<{ success: boolean; prefs: Partial<UserPrefs> }>("/user/prefs", prefs),
   setPrefs: (prefs: UserPrefs) =>
     api.put<{ success: boolean; prefs: UserPrefs }>("/user/prefs", prefs),
+  deleteAccount: () => api.delete<{ success: boolean }>("/user"),
 };

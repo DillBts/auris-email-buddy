@@ -182,6 +182,12 @@ export function useUserPrefs() {
   });
 }
 
+export function useDeleteAccount() {
+  return useMutation({
+    mutationFn: () => userApi.deleteAccount(),
+  });
+}
+
 export function useUpdatePrefs() {
   const qc = useQueryClient();
   return useMutation({

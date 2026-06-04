@@ -1,13 +1,24 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { Settings, Mail, Bell, Headphones, Volume2, Zap, ExternalLink, Loader2 } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Settings, Mail, Bell, Headphones, Volume2, Zap, ExternalLink, Loader2, TriangleAlert } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
-import { useAuthStatus, useDisconnectGmail, useUserPrefs, useUpdatePrefs, queryKeys } from "@/lib/api/hooks";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { useAuthStatus, useDisconnectGmail, useUserPrefs, useUpdatePrefs, useDeleteAccount, queryKeys } from "@/lib/api/hooks";
 import { useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { auth } from "@/lib/firebase";
+import { signOut } from "firebase/auth";
 import type { VoiceSpeed, VoiceType } from "@/lib/api/types";
 
 const SettingsPage = () => {
@@ -15,9 +26,22 @@ const SettingsPage = () => {
   const { data: prefsData, isLoading: prefsLoading } = useUserPrefs();
   const disconnectMutation = useDisconnectGmail();
   const updatePrefsMutation = useUpdatePrefs();
+  const deleteAccountMutation = useDeleteAccount();
   const qc = useQueryClient();
   const { toast } = useToast();
+  const navigate = useNavigate();
   const prefs = prefsData?.prefs;
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+
+  const handleDeleteAccount = async () => {
+    try {
+      await deleteAccountMutation.mutateAsync();
+      await signOut(auth);
+      navigate("/signin", { replace: true });
+    } catch {
+      toast({ title: "Deletion failed", description: "Something went wrong. Please try again.", variant: "destructive" });
+    }
+  };
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -179,14 +203,62 @@ const SettingsPage = () => {
             </div>
           </motion.div>
 
+          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }} className="glass-surface rounded-2xl p-4 md:p-6 border border-destructive/30">
+            <h3 className="font-bold text-destructive flex items-center gap-2 mb-4">
+              <TriangleAlert className="w-4 h-4" />
+              Danger Zone
+            </h3>
+            <div className="flex items-center justify-between gap-3">
+              <div className="min-w-0">
+                <p className="text-sm font-medium text-foreground">Delete Account</p>
+                <p className="text-xs text-muted-foreground">Permanently remove your account and all associated data</p>
+              </div>
+              <Button variant="destructive" size="sm" className="shrink-0" onClick={() => setShowDeleteDialog(true)}>
+                Delete Account
+              </Button>
+            </div>
+          </motion.div>
+
         </div>
 
-        <p className="text-xs text-muted-foreground text-center pt-2 pb-4">
+        <p className="text-xs text-muted-foreground text-center pt-2 pb-4 flex items-center justify-center gap-2">
           <Link to="/privacy" className="underline underline-offset-2 hover:text-foreground transition-colors">
             Privacy Policy
           </Link>
+          <span>·</span>
+          <Link to="/terms" className="underline underline-offset-2 hover:text-foreground transition-colors">
+            Terms of Service
+          </Link>
         </p>
       </div>
+
+      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete your account?</AlertDialogTitle>
+            <AlertDialogDescription className="space-y-2">
+              <span className="block">This action is <span className="font-semibold text-foreground">permanent and cannot be undone.</span> Deleting your account will remove:</span>
+              <ul className="list-disc pl-5 space-y-1 text-sm">
+                <li>Your Auris account and preferences</li>
+                <li>All cached email summaries</li>
+                <li>All generated audio files</li>
+                <li>Your Gmail connection</li>
+              </ul>
+              <span className="block pt-1">Your actual Gmail emails are not affected.</span>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={deleteAccountMutation.isPending}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDeleteAccount}
+              disabled={deleteAccountMutation.isPending}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {deleteAccountMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : "Yes, delete my account"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
