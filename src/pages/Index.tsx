@@ -12,7 +12,7 @@ const Index = () => {
   const [filter, setFilter] = useState<string>("all");
   const navigate = useNavigate();
 
-  const { data: authStatus } = useAuthStatus();
+  const { data: authStatus, isLoading: authLoading } = useAuthStatus();
   const gmailConnected = authStatus?.gmailConnected ?? false;
 
   const priority = (["very-important", "important", "not-important"].includes(filter)
@@ -164,7 +164,11 @@ const Index = () => {
       </div>
 
       <div className="flex-1 overflow-y-auto">
-        {!gmailConnected ? (
+        {authLoading ? (
+          <div className="flex items-center justify-center h-full text-muted-foreground">
+            <Loader2 className="w-6 h-6 animate-spin" />
+          </div>
+        ) : !gmailConnected ? (
           <div className="flex flex-col items-center justify-center h-full text-muted-foreground gap-4">
             <Mail className="w-12 h-12 opacity-20" />
             <p className="text-sm font-medium">Connect Gmail to see your emails</p>
