@@ -20,11 +20,11 @@ export default defineConfig(({ mode }) => ({
     dedupe: ["react", "react-dom", "react/jsx-runtime", "react/jsx-dev-runtime"],
   },
   optimizeDeps: {
-    exclude: ["@capacitor-firebase/authentication", "@capacitor/app"],
+    exclude: ["@capacitor-firebase/authentication", "@capacitor/app", "@capacitor/core"],
   },
   build: {
     rollupOptions: {
-      external: ["@capacitor-firebase/authentication", "@capacitor/app"],
+      external: ["@capacitor-firebase/authentication", "@capacitor/app", "@capacitor/core"],
     },
   },
 }));
