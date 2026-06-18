@@ -1,0 +1,8 @@
+[{
+  "relation": ["delegate_permission/common.handle_all_urls"],
+  "target": {
+    "namespace": "android_app",
+    "package_name": "com.aurismail.app",
+    "sha256_cert_fingerprints": ["9B:BF:D1:42:86:FB:0B:A9:1F:D2:9B:77:A8:89:AF:75:A8:3D:EE:CA:33:0E:C6:56:F9:68:6D:AE:84:55:D2:4B"]
+  }
+}]
