@@ -1,6 +1,5 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from "react";
 import { User, onAuthStateChanged, signOut, signInWithCredential, GoogleAuthProvider } from "firebase/auth";
-import { FirebaseAuthentication } from "@capacitor-firebase/authentication";
 import { useQueryClient } from "@tanstack/react-query";
 import { auth } from "@/lib/firebase";
 import { api } from "@/lib/api/client";
@@ -32,6 +31,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const handleSignIn = async () => {
     try {
+      const { FirebaseAuthentication } = await import("@capacitor-firebase/authentication");
       const result = await FirebaseAuthentication.signInWithGoogle();
       const accessToken = result.credential?.accessToken;
       const idToken = result.credential?.idToken;

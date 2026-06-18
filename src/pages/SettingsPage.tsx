@@ -2,8 +2,6 @@ import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Settings, Mail, Bell, Headphones, Volume2, Zap, ExternalLink, Loader2, TriangleAlert } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
-import { App } from "@capacitor/app";
-import { Capacitor } from "@capacitor/core";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import {
@@ -66,8 +64,11 @@ const SettingsPage = () => {
 
     // Handle deep-link callback when app is already running (native Android only)
     let listenerHandle: { remove: () => void } | null = null;
-    if (Capacitor.isNativePlatform()) {
+    (async () => {
       try {
+        const { Capacitor } = await import("@capacitor/core");
+        if (!Capacitor.isNativePlatform()) return;
+        const { App } = await import("@capacitor/app");
         App.addListener("appUrlOpen", ({ url }) => {
           const search = url.includes("?") ? url.slice(url.indexOf("?")) : "";
           handleOAuthCallback(search);
@@ -75,7 +76,7 @@ const SettingsPage = () => {
       } catch {
         // bridge unavailable — no-op
       }
-    }
+    })();
 
     return () => { listenerHandle?.remove(); };
   }, []);
