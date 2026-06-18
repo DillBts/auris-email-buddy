@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { Settings, Mail, Bell, Headphones, Volume2, Zap, ExternalLink, Loader2, TriangleAlert } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { App } from "@capacitor/app";
+import { Capacitor } from "@capacitor/core";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import {
@@ -63,12 +64,18 @@ const SettingsPage = () => {
     // Handle callback params present on initial mount (web flow)
     handleOAuthCallback(window.location.search);
 
-    // Handle deep-link callback when app is already running (native Android)
+    // Handle deep-link callback when app is already running (native Android only)
     let listenerHandle: { remove: () => void } | null = null;
-    App.addListener("appUrlOpen", ({ url }) => {
-      const search = url.includes("?") ? url.slice(url.indexOf("?")) : "";
-      handleOAuthCallback(search);
-    }).then((handle) => { listenerHandle = handle; });
+    if (Capacitor.isNativePlatform()) {
+      try {
+        App.addListener("appUrlOpen", ({ url }) => {
+          const search = url.includes("?") ? url.slice(url.indexOf("?")) : "";
+          handleOAuthCallback(search);
+        }).then((handle) => { listenerHandle = handle; });
+      } catch {
+        // bridge unavailable — no-op
+      }
+    }
 
     return () => { listenerHandle?.remove(); };
   }, []);
