@@ -7,11 +7,13 @@ export const isNative = () => {
 };
 
 export const signInWithGoogleNative = async () => {
-  const { FirebaseAuthentication } = await import("@capacitor-firebase/authentication");
+  const pkg = "@capacitor-firebase/authentication";
+  const { FirebaseAuthentication } = await import(/* @vite-ignore */ pkg);
   return FirebaseAuthentication.signInWithGoogle();
 };
 
 export const addAppUrlOpenListener = async (handler: (data: { url: string }) => void) => {
-  const { App } = await import("@capacitor/app");
+  const pkg = "@capacitor/app";
+  const { App } = await import(/* @vite-ignore */ pkg);
   return App.addListener("appUrlOpen", handler);
 };
