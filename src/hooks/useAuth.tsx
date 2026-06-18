@@ -1,9 +1,11 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from "react";
-import { User, onAuthStateChanged, signInWithPopup, signOut, GoogleAuthProvider } from "firebase/auth";
+import { User, onAuthStateChanged, signOut, signInWithCredential, GoogleAuthProvider } from "firebase/auth";
+import { FirebaseAuthentication } from "@capacitor-firebase/authentication";
 import { useQueryClient } from "@tanstack/react-query";
-import { auth, googleProvider } from "@/lib/firebase";
+import { auth } from "@/lib/firebase";
 import { api } from "@/lib/api/client";
 import { queryKeys } from "@/lib/api/hooks";
+import { useToast } from "@/hooks/use-toast";
 
 interface AuthContextValue {
   user: User | null;
@@ -18,6 +20,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const qc = useQueryClient();
+  const { toast } = useToast();
 
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, (firebaseUser) => {
@@ -28,18 +31,30 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const handleSignIn = async () => {
-    const result = await signInWithPopup(auth, googleProvider);
-    const credential = GoogleAuthProvider.credentialFromResult(result);
-    if (credential?.accessToken) {
-      localStorage.setItem("google_access_token", credential.accessToken);
-      await api.post("/auth/sync-google", { googleAccessToken: credential.accessToken });
-      const status = await api.get<{ gmailConnected: boolean; hasRefreshToken: boolean }>("/auth/status");
-      if (!status.hasRefreshToken) {
-        const uid = result.user.uid;
+    try {
+      const result = await FirebaseAuthentication.signInWithGoogle();
+      const accessToken = result.credential?.accessToken;
+      const idToken = result.credential?.idToken;
+
+      if (accessToken) {
+        // Web flow: full OAuth access token available
+        localStorage.setItem("google_access_token", accessToken);
+        await api.post("/auth/sync-google", { googleAccessToken: accessToken });
+        const status = await api.get<{ gmailConnected: boolean; hasRefreshToken: boolean }>("/auth/status");
+        if (!status.hasRefreshToken) {
+          const uid = result.user?.uid;
+          window.location.href = `${import.meta.env.VITE_API_URL}/auth/gmail?uid=${uid}`;
+          return;
+        }
+        qc.invalidateQueries({ queryKey: queryKeys.authStatus() });
+      } else if (idToken) {
+        // Native Android flow: only idToken available — establish Firebase session then redirect for Gmail OAuth
+        await signInWithCredential(auth, GoogleAuthProvider.credential(idToken, null));
+        const uid = result.user?.uid;
         window.location.href = `${import.meta.env.VITE_API_URL}/auth/gmail?uid=${uid}`;
-        return;
       }
-      qc.invalidateQueries({ queryKey: queryKeys.authStatus() });
+    } catch (error) {
+      toast({ title: "Sign in failed", description: "Sign in failed. Please try again.", variant: "destructive" });
     }
   };
 
