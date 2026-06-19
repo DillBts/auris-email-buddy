@@ -53,8 +53,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const uid = result.user?.uid;
         window.location.href = `${import.meta.env.VITE_API_URL}/auth/gmail?uid=${uid}`;
       }
-    } catch (error) {
-      toast({ title: "Sign in failed", description: "Sign in failed. Please try again.", variant: "destructive" });
+    } catch (error: any) {
+      toast({
+        title: "Sign in failed",
+        description: `${error?.message ?? String(error)}\n\n${error?.stack ?? ""}`,
+        variant: "destructive",
+      });
     }
   };
 
