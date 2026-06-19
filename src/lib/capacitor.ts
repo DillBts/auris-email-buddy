@@ -12,6 +12,10 @@ export const signInWithGoogleNative = async () => {
 };
 
 export const addAppUrlOpenListener = async (handler: (data: { url: string }) => void) => {
+  console.log("addAppUrlOpenListener called");
   const mod = await import("@capacitor/app");
-  return mod.App.addListener("appUrlOpen", handler);
+  return mod.App.addListener("appUrlOpen", (data: { url: string }) => {
+    console.log("appUrlOpen received url:", data.url);
+    handler(data);
+  });
 };
