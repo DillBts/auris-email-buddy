@@ -13,6 +13,15 @@ export default defineConfig(({ mode }) => ({
     },
   },
   plugins: [react(), mode === "development" && componentTagger()].filter(Boolean),
+  build: {
+    rollupOptions: {
+      external: [
+        "@capacitor-firebase/authentication",
+        "@capacitor/app",
+        "@capacitor/core",
+      ],
+    },
+  },
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
