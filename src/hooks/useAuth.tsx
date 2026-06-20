@@ -1,8 +1,8 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from "react";
-import { User, onAuthStateChanged, signOut, signInWithCredential, GoogleAuthProvider } from "firebase/auth";
+import { User, onAuthStateChanged, signOut, signInWithCredential, signInWithPopup, GoogleAuthProvider } from "firebase/auth";
 import { isNative, signInWithGoogleNative } from "@/lib/capacitor";
 import { useQueryClient } from "@tanstack/react-query";
-import { auth } from "@/lib/firebase";
+import { auth, googleProvider } from "@/lib/firebase";
 import { api } from "@/lib/api/client";
 import { queryKeys } from "@/lib/api/hooks";
 import { useToast } from "@/hooks/use-toast";
@@ -32,27 +32,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const handleSignIn = async () => {
     try {
-      const result = await signInWithGoogleNative();
-      const accessToken = result.credential?.accessToken;
-      const idToken = result.credential?.idToken;
-
-      if (accessToken) {
-        // Web flow: full OAuth access token available
-        localStorage.setItem("google_access_token", accessToken);
-        await api.post("/auth/sync-google", { googleAccessToken: accessToken });
-        const status = await api.get<{ gmailConnected: boolean; hasRefreshToken: boolean }>("/auth/status");
-        if (!status.hasRefreshToken) {
-          const uid = result.user?.uid;
-          window.location.href = `${import.meta.env.VITE_API_URL}/auth/gmail?uid=${uid}`;
-          return;
-        }
-        qc.invalidateQueries({ queryKey: queryKeys.authStatus() });
-      } else if (idToken) {
-        // Native Android flow: only idToken available — establish Firebase session then redirect for Gmail OAuth
+      if (isNative()) {
+        const result = await signInWithGoogleNative();
+        const idToken = result.credential?.idToken;
         await signInWithCredential(auth, GoogleAuthProvider.credential(idToken, null));
         const uid = result.user?.uid;
         window.location.href = `${import.meta.env.VITE_API_URL}/auth/gmail?uid=${uid}`;
+        return;
       }
+
+      // Web flow
+      const result = await signInWithPopup(auth, googleProvider);
+      const credential = GoogleAuthProvider.credentialFromResult(result);
+      const accessToken = credential?.accessToken;
+      localStorage.setItem("google_access_token", accessToken ?? "");
+      await api.post("/auth/sync-google", { googleAccessToken: accessToken });
+      const status = await api.get<{ gmailConnected: boolean; hasRefreshToken: boolean }>("/auth/status");
+      if (!status.hasRefreshToken) {
+        window.location.href = `${import.meta.env.VITE_API_URL}/auth/gmail?uid=${result.user?.uid}`;
+        return;
+      }
+      qc.invalidateQueries({ queryKey: queryKeys.authStatus() });
     } catch (error: any) {
       toast({
         title: "Sign in failed",
