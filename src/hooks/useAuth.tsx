@@ -53,10 +53,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return;
       }
       qc.invalidateQueries({ queryKey: queryKeys.authStatus() });
-    } catch (error: any) {
+    } catch {
       toast({
         title: "Sign in failed",
-        description: `${error?.message ?? String(error)}\n\n${error?.stack ?? ""}`,
+        description: "Please try again. If this keeps happening, contact support.",
         variant: "destructive",
       });
     }
