@@ -34,7 +34,7 @@ interface EmailDetailProps {
 
 export function EmailDetail({ email, onBack, onTrash, onListen, onStar, starPending, trashPending }: EmailDetailProps) {
   const [expanded, setExpanded] = useState(false);
-  const cleaned = cleanEmailBody(email.body);
+  const cleaned = email.cleanedBody ?? cleanEmailBody(email.body);
   const truncated = cleaned.length > PREVIEW_LENGTH && !expanded;
   const displayBody = truncated ? cleaned.slice(0, PREVIEW_LENGTH) + "…" : cleaned;
 

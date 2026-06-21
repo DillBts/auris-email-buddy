@@ -9,6 +9,7 @@ export interface Email {
   subject: string;
   preview: string;
   body: string;
+  cleanedBody?: string;
   date: string;
   time: string;
   priority: Priority;
