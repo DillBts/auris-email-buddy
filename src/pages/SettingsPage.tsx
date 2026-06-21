@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { Settings, Mail, Bell, Headphones, Volume2, Zap, ExternalLink, Loader2, TriangleAlert } from "lucide-react";
+import { Settings, Mail, Bell, Headphones, Volume2, Zap, ExternalLink, Loader2, TriangleAlert, Star, Trash2, ChevronRight } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { isNative, addAppUrlOpenListener } from "@/lib/capacitor";
 import { Button } from "@/components/ui/button";
@@ -104,6 +104,31 @@ const SettingsPage = () => {
 
       <div className="flex-1 overflow-y-auto p-4 md:p-6">
         <div className="max-w-2xl space-y-4 md:space-y-6">
+
+          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="glass-surface rounded-2xl p-4 md:p-6">
+            <h3 className="font-bold text-foreground flex items-center gap-2 mb-4">
+              <Mail className="w-4 h-4 text-primary" />
+              Mailbox
+            </h3>
+            <div className="space-y-1">
+              {[
+                { icon: Star, label: "Starred", path: "/starred" },
+                { icon: Trash2, label: "Trash", path: "/trash" },
+              ].map(({ icon: Icon, label, path }) => (
+                <button
+                  key={path}
+                  onClick={() => navigate(path)}
+                  className="w-full flex items-center justify-between gap-3 px-2 py-2.5 rounded-lg text-sm font-medium text-foreground hover:bg-muted/60 transition-colors"
+                >
+                  <span className="flex items-center gap-3">
+                    <Icon className="w-4 h-4 text-primary" />
+                    {label}
+                  </span>
+                  <ChevronRight className="w-4 h-4 text-muted-foreground" />
+                </button>
+              ))}
+            </div>
+          </motion.div>
 
           <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="glass-surface rounded-2xl p-4 md:p-6">
             <h3 className="font-bold text-foreground flex items-center gap-2 mb-4">

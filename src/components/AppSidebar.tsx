@@ -1,25 +1,8 @@
 import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
-import {
-  Inbox,
-  BarChart3,
-  Trash2,
-  Settings,
-  Star,
-  Headphones,
-  ChevronLeft,
-  ChevronRight,
-} from "lucide-react";
-
-const navItems = [
-  { icon: Inbox, label: "Inbox", path: "/" },
-  { icon: Star, label: "Starred", path: "/starred" },
-  { icon: Headphones, label: "Listen", path: "/listen" },
-  { icon: BarChart3, label: "Summaries", path: "/summaries" },
-  { icon: Trash2, label: "Trash", path: "/trash" },
-  { icon: Settings, label: "Settings", path: "/settings" },
-];
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import { navItems } from "@/lib/navItems";
 
 export function AppSidebar() {
   const [collapsed, setCollapsed] = useState(false);

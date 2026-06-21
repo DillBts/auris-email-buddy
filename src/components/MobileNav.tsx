@@ -1,14 +1,8 @@
 import { useNavigate, useLocation } from "react-router-dom";
-import { Inbox, Star, Headphones, BarChart3, Trash2, Settings } from "lucide-react";
+import { navItems } from "@/lib/navItems";
 
-const navItems = [
-  { icon: Inbox, label: "Inbox", path: "/" },
-  { icon: Star, label: "Starred", path: "/starred" },
-  { icon: Headphones, label: "Listen", path: "/listen" },
-  { icon: BarChart3, label: "Summaries", path: "/summaries" },
-  { icon: Trash2, label: "Trash", path: "/trash" },
-  { icon: Settings, label: "Settings", path: "/settings" },
-];
+const MOBILE_PATHS = new Set(["/", "/listen", "/summaries", "/settings"]);
+const mobileNavItems = navItems.filter((item) => MOBILE_PATHS.has(item.path));
 
 export function MobileNav() {
   const navigate = useNavigate();
@@ -17,7 +11,7 @@ export function MobileNav() {
   return (
     <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 border-t border-border/50 bg-background/95 backdrop-blur-lg safe-bottom">
       <div className="flex items-center justify-around px-1 py-1.5">
-        {navItems.map((item) => {
+        {mobileNavItems.map((item) => {
           const active = location.pathname === item.path;
           return (
             <button
